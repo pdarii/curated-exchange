@@ -1,5 +1,6 @@
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -39,6 +40,7 @@ interface RetailCard {
   imports: [
     CurrencyPipe,
     DecimalPipe,
+    RouterLink,
     FormsModule,
     MatIconModule,
     MatButtonModule,

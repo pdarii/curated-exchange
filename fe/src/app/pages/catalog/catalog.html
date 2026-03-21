@@ -1,0 +1,100 @@
+<!-- Header -->
+<div class="cat-header">
+  <h1 class="cat-header__title">Retail Catalog</h1>
+  <p class="cat-header__subtitle">New Supply from the Exchange</p>
+</div>
+
+<!-- Filters row -->
+<div class="cat-filters">
+  <div class="cat-filters__pills">
+    @for (t of typeFilters; track t.value) {
+      <button
+        class="type-pill"
+        [class.type-pill--active]="typeFilter() === t.value"
+        (click)="setTypeFilter(t.value)"
+      >
+        {{ t.label }}
+      </button>
+    }
+  </div>
+  <div class="cat-filters__sort" [matMenuTriggerFor]="sortMenu">
+    <span class="cat-filters__sort-label">Sort by:</span>
+    <span class="cat-filters__sort-value">{{ activeSortLabel() }} ▾</span>
+  </div>
+  <mat-menu #sortMenu="matMenu">
+    @for (opt of sortOptions; track opt.value) {
+      <button mat-menu-item (click)="sortField.set(opt.value); currentPage.set(1)">
+        {{ opt.label }}
+      </button>
+    }
+  </mat-menu>
+</div>
+
+<!-- Catalog grid -->
+<div class="cat-grid">
+  @for (item of pagedItems(); track item.breed.name) {
+    <div class="cat-card">
+      <!-- Image -->
+      <div class="cat-card__img">
+        <span class="supply-badge" [class]="supplyBadgeClass(item.supply)">
+          {{ supplyLabel(item.supply) }}
+        </span>
+      </div>
+
+      <!-- Body -->
+      <div class="cat-card__body">
+        <div class="cat-card__top-row">
+          <div>
+            <span class="cat-card__name">{{ item.breed.name }}</span>
+            <span class="cat-card__breed-sub">{{ breedSubtitle(item.breed.name) }}</span>
+          </div>
+          <div class="cat-card__price-col">
+            <span class="cat-card__price-label">Price</span>
+            <span class="cat-card__price">{{ item.breed.basePrice | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+          </div>
+        </div>
+
+        <!-- Lifespan bar -->
+        <div class="cat-card__lifespan">
+          <span class="cat-card__lifespan-label">Lifespan</span>
+          <span class="cat-card__lifespan-value">{{ lifespanRange(item.breed.lifespan) }}</span>
+        </div>
+        <div class="cat-card__lifespan-bar">
+          <div class="cat-card__lifespan-fill" [style.width.%]="(item.breed.lifespan / 50) * 100"></div>
+        </div>
+
+        <!-- Traits -->
+        <div class="cat-card__traits">
+          <span class="cat-card__trait">{{ desirabilityLabel(item.breed.desirability) }}</span>
+          <span class="cat-card__trait">{{ maintenanceLabel(item.breed.maintenance) }}</span>
+        </div>
+
+        <button class="cat-card__buy" (click)="openBuy(item)">Buy Now</button>
+      </div>
+    </div>
+  } @empty {
+    <div class="cat-empty">
+      <mat-icon>storefront</mat-icon>
+      <p>No breeds match your filter</p>
+    </div>
+  }
+</div>
+
+<!-- Pagination -->
+<div class="cat-footer">
+  <span class="cat-footer__info">Items per page: {{ pageSize }}</span>
+
+  @if (showPagination()) {
+    <div class="cat-pagination">
+      <span class="cat-pagination__arrow" (click)="prevPage()">&lt;</span>
+      @for (page of pages(); track page) {
+        <span
+          class="cat-pagination__page"
+          [class.cat-pagination__page--active]="page === currentPage()"
+          (click)="goToPage(page)"
+        >{{ page }}</span>
+      }
+      <span class="cat-pagination__arrow" (click)="nextPage()">&gt;</span>
+    </div>
+  }
+</div>
