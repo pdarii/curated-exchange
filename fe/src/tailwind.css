@@ -1,0 +1,93 @@
+/* =============================================================================
+   Kinship Exchange — Tailwind CSS 4 + Custom Theme Tokens
+   ============================================================================= */
+
+@import "tailwindcss";
+
+@theme {
+  /* ---- Colors: Surface hierarchy ---- */
+  --color-surface: #f9f9f9;
+  --color-surface-bright: #f9f9f9;
+  --color-surface-dim: #dadada;
+  --color-surface-container: #eeeeee;
+  --color-surface-container-low: #f3f3f3;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-high: #e8e8e8;
+  --color-surface-container-highest: #e2e2e2;
+  --color-surface-tint: #005db7;
+  --color-surface-variant: #e2e2e2;
+
+  /* ---- Colors: Primary (Deep Blue — Trust) ---- */
+  --color-primary: #004d99;
+  --color-primary-container: #1565c0;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #dae5ff;
+  --color-primary-fixed: #d6e3ff;
+  --color-primary-fixed-dim: #a9c7ff;
+
+  /* ---- Colors: Secondary (Amber — Energy) ---- */
+  --color-secondary: #875200;
+  --color-secondary-container: #f89c00;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #623a00;
+  --color-secondary-fixed: #ffddba;
+  --color-secondary-fixed-dim: #ffb865;
+
+  /* ---- Colors: Tertiary (Teal — Growth) ---- */
+  --color-tertiary: #00584f;
+  --color-tertiary-container: #007367;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #8ff7e6;
+  --color-tertiary-fixed: #8df5e4;
+  --color-tertiary-fixed-dim: #70d8c8;
+
+  /* ---- Colors: Error ---- */
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #93000a;
+
+  /* ---- Colors: On-surface ---- */
+  --color-on-surface: #1a1c1c;
+  --color-on-surface-variant: #424752;
+  --color-on-background: #1a1c1c;
+  --color-outline: #727783;
+  --color-outline-variant: #c2c6d4;
+
+  /* ---- Colors: Inverse ---- */
+  --color-inverse-surface: #2f3131;
+  --color-inverse-on-surface: #f0f1f1;
+  --color-inverse-primary: #a9c7ff;
+
+  /* ---- Colors: Trader accent tints ---- */
+  --color-trader-a: #d6e3ff;
+  --color-trader-b: #8df5e4;
+  --color-trader-c: #EADDFF;
+
+  /* ---- Typography ---- */
+  --font-display: 'Manrope', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* ---- Font sizes (editorial scale) ---- */
+  --font-size-display-lg: 3.5rem;
+  --font-size-display-md: 2.8rem;
+  --font-size-display-sm: 2.25rem;
+  --font-size-headline-lg: 2rem;
+  --font-size-headline-md: 1.75rem;
+  --font-size-headline-sm: 1.5rem;
+  --font-size-title-lg: 1.375rem;
+  --font-size-title-md: 1rem;
+  --font-size-title-sm: 0.875rem;
+  --font-size-body-lg: 1rem;
+  --font-size-body-md: 0.875rem;
+  --font-size-body-sm: 0.75rem;
+  --font-size-label-lg: 0.875rem;
+  --font-size-label-md: 0.75rem;
+  --font-size-label-sm: 0.6875rem;
+
+  /* ---- Ambient shadows (blue-tinted, hyper-diffused) ---- */
+  --shadow-ambient-sm: 0 4px 16px rgba(0, 77, 153, 0.04);
+  --shadow-ambient: 0 8px 28px rgba(0, 77, 153, 0.05);
+  --shadow-ambient-lg: 0 12px 40px rgba(0, 77, 153, 0.06);
+  --shadow-ambient-xl: 0 20px 60px rgba(0, 77, 153, 0.08);
+}

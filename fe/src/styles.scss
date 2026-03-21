@@ -1,38 +1,142 @@
+// =============================================================================
+// Kinship Exchange — Material 3 Theme + Design System utilities
+// =============================================================================
 
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
+// -----------------------------------------------------------------------------
+// 1. Material 3 Theme — Custom palette from Stitch design tokens
+// -----------------------------------------------------------------------------
 html {
   height: 100%;
+
   @include mat.theme((
     color: (
       primary: mat.$blue-palette,
-      tertiary: mat.$violet-palette,
+      tertiary: mat.$cyan-palette,
     ),
-    typography: Roboto,
+    typography: Inter,
     density: 0,
   ));
+
+  // Override M3 system CSS variables with Kinship Exchange design tokens
+  // Primary (Deep Blue — Trust)
+  --mat-sys-primary: #004d99;
+  --mat-sys-primary-container: #1565c0;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-on-primary-container: #dae5ff;
+  --mat-sys-primary-fixed: #d6e3ff;
+  --mat-sys-primary-fixed-dim: #a9c7ff;
+  --mat-sys-on-primary-fixed: #001b3d;
+  --mat-sys-on-primary-fixed-variant: #00468c;
+  --mat-sys-inverse-primary: #a9c7ff;
+
+  // Secondary (Amber — Energy)
+  --mat-sys-secondary: #875200;
+  --mat-sys-secondary-container: #f89c00;
+  --mat-sys-on-secondary: #ffffff;
+  --mat-sys-on-secondary-container: #623a00;
+  --mat-sys-secondary-fixed: #ffddba;
+  --mat-sys-secondary-fixed-dim: #ffb865;
+  --mat-sys-on-secondary-fixed: #2b1700;
+  --mat-sys-on-secondary-fixed-variant: #663d00;
+
+  // Tertiary (Teal — Nature/Growth)
+  --mat-sys-tertiary: #00584f;
+  --mat-sys-tertiary-container: #007367;
+  --mat-sys-on-tertiary: #ffffff;
+  --mat-sys-on-tertiary-container: #8ff7e6;
+  --mat-sys-tertiary-fixed: #8df5e4;
+  --mat-sys-tertiary-fixed-dim: #70d8c8;
+  --mat-sys-on-tertiary-fixed: #00201c;
+  --mat-sys-on-tertiary-fixed-variant: #005048;
+
+  // Error
+  --mat-sys-error: #ba1a1a;
+  --mat-sys-error-container: #ffdad6;
+  --mat-sys-on-error: #ffffff;
+  --mat-sys-on-error-container: #93000a;
+
+  // Surface hierarchy ("Paper-on-Glass" philosophy)
+  --mat-sys-surface: #f9f9f9;
+  --mat-sys-surface-bright: #f9f9f9;
+  --mat-sys-surface-dim: #dadada;
+  --mat-sys-surface-container: #eeeeee;
+  --mat-sys-surface-container-low: #f3f3f3;
+  --mat-sys-surface-container-lowest: #ffffff;
+  --mat-sys-surface-container-high: #e8e8e8;
+  --mat-sys-surface-container-highest: #e2e2e2;
+  --mat-sys-surface-tint: #005db7;
+  --mat-sys-surface-variant: #e2e2e2;
+
+  // On-surface (NO pure black — editorial softness)
+  --mat-sys-on-surface: #1a1c1c;
+  --mat-sys-on-surface-variant: #424752;
+  --mat-sys-background: #f9f9f9;
+  --mat-sys-on-background: #1a1c1c;
+  --mat-sys-inverse-surface: #2f3131;
+  --mat-sys-inverse-on-surface: #f0f1f1;
+
+  // Outline
+  --mat-sys-outline: #727783;
+  --mat-sys-outline-variant: #c2c6d4;
 }
 
+// -----------------------------------------------------------------------------
+// 2. Body defaults
+// -----------------------------------------------------------------------------
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
   background-color: var(--mat-sys-surface);
   color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
   margin: 0;
   height: 100%;
 }
-@import "tailwindcss";
+
+// -----------------------------------------------------------------------------
+// 3. Utility classes — Design system patterns
+// -----------------------------------------------------------------------------
+
+// Glassmorphism for floating bars and trade headers
+.glass {
+  backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+// Primary gradient CTA (Primary → Primary-Container)
+.gradient-primary {
+  background: linear-gradient(135deg, #004d99, #1565c0);
+  color: #ffffff;
+}
+
+// Ghost border (accessibility — outline-variant at 15% opacity)
+.ghost-border {
+  outline: 1px solid rgba(194, 198, 212, 0.15);
+}
+
+// Trade Ribbon — vertical left accent using trader tints
+.trade-ribbon-a {
+  border-left: 4px solid var(--color-trader-a);
+}
+.trade-ribbon-b {
+  border-left: 4px solid var(--color-trader-b);
+}
+.trade-ribbon-c {
+  border-left: 4px solid var(--color-trader-c);
+}
+
+// Surface tint wash for pet biographies
+.surface-tint-wash {
+  background-color: rgba(0, 93, 183, 0.04);
+}
+
+// Health/age progress bar override (8px with rounded caps)
+.mat-mdc-progress-bar {
+  --mdc-linear-progress-track-height: 8px;
+  --mdc-linear-progress-active-indicator-height: 8px;
+  border-radius: 9999px;
+  overflow: hidden;
+}

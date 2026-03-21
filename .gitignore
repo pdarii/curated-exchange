@@ -47,3 +47,4 @@ fe/.vscode/*
 fe/node_modules/*
 fe/dist/*
 fe/.angular/cache/*
+.vscode/mcp.json
