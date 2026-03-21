@@ -1,0 +1,132 @@
+@if (pet(); as pet) {
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a routerLink="/assets" class="breadcrumb__link">Assets</a>
+    <span class="breadcrumb__sep">›</span>
+    <span class="breadcrumb__current">{{ petName() }}</span>
+  </div>
+
+  <!-- Pet identity header -->
+  <div class="detail-header">
+    <div class="detail-header__left">
+      <div class="detail-header__avatar">
+        <mat-icon>pets</mat-icon>
+      </div>
+      <div>
+        <h1 class="detail-header__name">{{ petName() }} 🐾</h1>
+        <p class="detail-header__breed">{{ breedLabel() }}</p>
+      </div>
+    </div>
+    <span class="status-badge" [class.status-badge--listed]="isListed()">
+      {{ isListed() ? 'Active Listing' : 'In Inventory' }}
+    </span>
+  </div>
+
+  <!-- Valuation + actions row -->
+  <div class="valuation-row">
+    <div class="valuation-card">
+      <span class="valuation-card__label">Current Valuation</span>
+      <span class="valuation-card__amount">{{ pet.intrinsicValue | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+      <span class="valuation-card__trend">
+        <mat-icon>trending_down</mat-icon>
+        -71.1% from last month
+      </span>
+    </div>
+    <div class="detail-actions">
+      <button class="btn-action btn-action--primary">
+        <mat-icon>sell</mat-icon>
+        List for Sale
+      </button>
+      <button class="btn-action btn-action--outline">
+        <mat-icon>history</mat-icon>
+        View Trade History
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats cards row -->
+  <div class="stats-row">
+    <div class="stats-card">
+      <div class="stats-card__header">
+        <span class="stats-card__label">Health</span>
+        <mat-icon class="stats-card__icon">favorite</mat-icon>
+      </div>
+      <span class="stats-card__value">{{ pet.health | number: '1.0-0' }}%</span>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="pet.health"
+        [color]="healthColor(pet.health)"
+      ></mat-progress-bar>
+    </div>
+
+    <div class="stats-card">
+      <div class="stats-card__header">
+        <span class="stats-card__label">Age vs. Lifespan</span>
+        <mat-icon class="stats-card__icon">hourglass_bottom</mat-icon>
+      </div>
+      <span class="stats-card__value">{{ pet.age | number: '1.1-1' }}y / {{ pet.lifespan }}y</span>
+      <mat-progress-bar
+        mode="determinate"
+        [value]="(pet.age / pet.lifespan) * 100"
+        color="primary"
+      ></mat-progress-bar>
+    </div>
+
+    <div class="stats-card">
+      <div class="stats-card__header">
+        <span class="stats-card__label">Desirability</span>
+        <mat-icon class="stats-card__icon">star</mat-icon>
+      </div>
+      <span class="stats-card__value">{{ pet.desirability }}/10</span>
+      <div class="stats-card__stars">
+        @for (filled of stars(pet.desirability); track $index) {
+          <mat-icon class="star-icon" [class.star-icon--filled]="filled">star</mat-icon>
+        }
+      </div>
+    </div>
+
+    <div class="stats-card">
+      <div class="stats-card__header">
+        <span class="stats-card__label">Maintenance</span>
+        <mat-icon class="stats-card__icon stats-card__icon--warn">payments</mat-icon>
+      </div>
+      <span class="stats-card__value">${{ pet.maintenance }}/mo</span>
+      <span class="stats-card__sub">Per Service Pass</span>
+    </div>
+  </div>
+
+  <!-- Intrinsic Value Formula -->
+  <div class="formula-section">
+    <div class="formula-section__header">
+      <mat-icon>functions</mat-icon>
+      <h2 class="formula-section__title">Intrinsic Value Formula</h2>
+    </div>
+
+    <div class="formula-row">
+      <div class="formula-chip">
+        <span class="formula-chip__label">Base</span>
+        <span class="formula-chip__value">${{ pet.basePrice }}</span>
+      </div>
+      <span class="formula-op">×</span>
+      <div class="formula-chip">
+        <span class="formula-chip__label">Health</span>
+        <span class="formula-chip__value">{{ healthFactor() }}</span>
+      </div>
+      <span class="formula-op">×</span>
+      <div class="formula-chip">
+        <span class="formula-chip__label">Desir.</span>
+        <span class="formula-chip__value">{{ desirabilityFactor() }}</span>
+      </div>
+      <span class="formula-op">×</span>
+      <div class="formula-chip">
+        <span class="formula-chip__label">Age</span>
+        <span class="formula-chip__value">{{ ageFactor() }}</span>
+      </div>
+      <span class="formula-op">=</span>
+      <div class="formula-chip formula-chip--total">
+        <span class="formula-chip__label">Total</span>
+        <span class="formula-chip__value">{{ pet.intrinsicValue | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+      </div>
+    </div>
+  </div>
+}

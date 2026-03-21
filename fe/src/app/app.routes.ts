@@ -20,6 +20,10 @@ export const routes: Routes = [
         path: 'assets',
         loadComponent: () => import('./pages/assets/assets').then((m) => m.Assets),
       },
+      {
+        path: 'assets/:id',
+        loadComponent: () => import('./pages/asset-detail/asset-detail').then((m) => m.AssetDetail),
+      },
     ],
   },
   { path: '**', redirectTo: '' },
