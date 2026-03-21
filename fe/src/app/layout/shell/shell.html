@@ -1,0 +1,40 @@
+<!-- Top navigation bar -->
+<header class="shell-header">
+  <div class="shell-header__inner">
+    <!-- Logo -->
+    <a routerLink="/dashboard" class="shell-logo">
+      <span class="shell-logo__text">THE CURATED EXCHANGE</span>
+    </a>
+
+    <!-- Nav links -->
+    <nav class="shell-nav">
+      @for (link of navLinks; track link.route) {
+        <a
+          [routerLink]="link.route"
+          routerLinkActive="shell-nav__link--active"
+          class="shell-nav__link"
+        >
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <span class="flex-1"></span>
+
+    <!-- Right actions -->
+    <div class="shell-actions">
+      <button mat-icon-button [matBadge]="unreadCount()" matBadgeColor="warn" [matBadgeHidden]="unreadCount() === 0" matBadgeSize="small">
+        <mat-icon>notifications_none</mat-icon>
+      </button>
+      <div class="shell-avatar"></div>
+      <button mat-icon-button (click)="logout()">
+        <mat-icon>account_balance_wallet</mat-icon>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Page content -->
+<main class="shell-main">
+  <router-outlet />
+</main>

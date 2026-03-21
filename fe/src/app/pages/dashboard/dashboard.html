@@ -1,0 +1,165 @@
+<!-- ═══ Financial summary strip ═══ -->
+<section class="fin-strip">
+  <div class="fin-card">
+    <span class="fin-card__label">Available Cash</span>
+    <span class="fin-card__value">
+      <span class="fin-card__dollar">$</span>{{ availableCash() | number: '1.0-0' }}<span class="fin-card__cents">.00</span>
+    </span>
+  </div>
+  <div class="fin-card">
+    <span class="fin-card__label">Locked Cash</span>
+    <span class="fin-card__value">
+      <span class="fin-card__dollar">$</span>{{ lockedCash() | number: '1.0-0' }}<span class="fin-card__cents">.00</span>
+    </span>
+  </div>
+  <div class="fin-card fin-card--primary">
+    <span class="fin-card__label">Total Portfolio Value</span>
+    <span class="fin-card__value">
+      <span class="fin-card__dollar">$</span>{{ totalPortfolioValue() | number: '1.0-0' }}<span class="fin-card__cents">.00</span>
+    </span>
+  </div>
+</section>
+
+<!-- ═══ Main grid: content + sidebar ═══ -->
+<div class="dash-grid">
+  <!-- Left column -->
+  <div class="dash-main">
+    <!-- ── Inventory ── -->
+    <section class="dash-section">
+      <div class="dash-section__header">
+        <h2 class="dash-section__title">{{ traderName() }}'s Inventory</h2>
+        <a class="dash-section__link">View All Assets</a>
+      </div>
+
+      <div class="pet-grid">
+        @for (pet of pets(); track pet.id) {
+          <div class="pet-card">
+            <div class="pet-card__img">
+              <img src="https://placedog.net/400/240?id={{ pet.id }}" [alt]="pet.breedName" />
+              @if (isListed(pet.id)) {
+                <div class="pet-card__badges">
+                  <span class="badge badge--primary">Active Listing</span>
+                  <span class="badge badge--amber">Rare Coat</span>
+                </div>
+              } @else if (pet.desirability >= 8) {
+                <div class="pet-card__badges">
+                  <span class="badge badge--amber">High Desirability</span>
+                </div>
+              } @else {
+                <div class="pet-card__badges">
+                  <span class="badge badge--teal">Common</span>
+                </div>
+              }
+            </div>
+
+            <div class="pet-card__body">
+              <h4 class="pet-card__name">{{ pet.breedName }}</h4>
+              <div class="pet-card__stats">
+                <span>Age {{ pet.age | number: '1.1-1' }}</span>
+                <span>{{ pet.health | number: '1.0-0' }}% Health</span>
+              </div>
+              <mat-progress-bar
+                mode="determinate"
+                [value]="pet.health"
+                [color]="healthColor(pet.health)"
+              ></mat-progress-bar>
+
+              <div class="pet-card__values">
+                <div class="pet-card__val-col">
+                  <span class="pet-card__val-label">Intrinsic</span>
+                  <span class="pet-card__val-amount">${{ pet.intrinsicValue | number: '1.0-0' }}</span>
+                </div>
+                <div class="pet-card__val-col">
+                  <span class="pet-card__val-label">{{ isListed(pet.id) ? 'Listing Price' : 'Market' }}</span>
+                  <span class="pet-card__val-amount pet-card__val-amount--accent">
+                    ${{ (getListingPrice(pet.id) ?? pet.intrinsicValue * 1.15) | number: '1.0-0' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- ── Active Market Operations ── -->
+    <section class="dash-section">
+      <h2 class="dash-section__title">Active Market Operations</h2>
+
+      <div class="ops-table">
+        <div class="ops-row ops-row--header">
+          <span class="ops-cell ops-cell--type">Type</span>
+          <span class="ops-cell ops-cell--asset">Asset</span>
+          <span class="ops-cell ops-cell--value">Value</span>
+          <span class="ops-cell ops-cell--status">Status</span>
+        </div>
+
+        @for (listing of listings(); track listing.id) {
+          <div class="ops-row">
+            <span class="ops-cell ops-cell--type"><span class="ops-dot ops-dot--blue"></span> Listing</span>
+            <span class="ops-cell ops-cell--asset">{{ listing.pet.breedName }} (ID #{{ listing.petId.slice(-4) }})</span>
+            <span class="ops-cell ops-cell--value">{{ listing.askingPrice | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+            <span class="ops-cell ops-cell--status">
+              @if (listing.highestBid) {
+                <span class="badge badge--primary-sm">1 Bid Received</span>
+              } @else {
+                <span>No Bids</span>
+              }
+            </span>
+          </div>
+        }
+
+        @for (bid of bids(); track bid.id) {
+          @if (bid.status === 'active') {
+            <div class="ops-row">
+              <span class="ops-cell ops-cell--type"><span class="ops-dot ops-dot--amber"></span> Active Bid</span>
+              <span class="ops-cell ops-cell--asset">{{ bid.petBreedName }} (ID #{{ bid.petId.slice(-4) }})</span>
+              <span class="ops-cell ops-cell--value">{{ bid.amount | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+              <span class="ops-cell ops-cell--status"><span class="badge badge--outline">Pending Response</span></span>
+            </div>
+          }
+        }
+      </div>
+    </section>
+  </div>
+
+  <!-- ═══ Right sidebar ═══ -->
+  <aside class="dash-sidebar">
+    <!-- Global Market -->
+    <div class="sidebar-panel">
+      <div class="sidebar-panel__header">
+        <mat-icon class="sidebar-panel__icon">insights</mat-icon>
+        <h3 class="sidebar-panel__title">Global Market</h3>
+        <span class="sidebar-panel__dot"></span>
+      </div>
+
+      <div class="sidebar-feed">
+        @for (n of notifications(); track n.id) {
+          <div class="feed-item" [class.feed-item--unread]="!n.read">
+            <span class="feed-dot"></span>
+            <div class="feed-item__content">
+              <p class="feed-item__text" [innerHTML]="n.message"></p>
+              <span class="feed-item__time">{{ timeAgo(n.createdAt) }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- New Listing button -->
+      <button class="btn-new-listing">New Listing</button>
+
+      <!-- Market Sentiment -->
+      <div class="sentiment">
+        <span class="sentiment__label">Market Sentiment</span>
+        <div class="sentiment__bars">
+          <div class="sbar" style="height: 40%"></div>
+          <div class="sbar" style="height: 55%"></div>
+          <div class="sbar sbar--accent" style="height: 70%"></div>
+          <div class="sbar sbar--accent" style="height: 85%"></div>
+          <div class="sbar sbar--accent" style="height: 95%"></div>
+        </div>
+        <span class="sentiment__trend">Bullish Trend +4.2%</span>
+      </div>
+    </div>
+  </aside>
+</div>
