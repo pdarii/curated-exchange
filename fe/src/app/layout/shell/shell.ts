@@ -5,10 +5,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { ApiService } from '../../services/api.service';
-import { Notification } from '../../models/domain';
+import { Notification, Listing } from '../../models/domain';
+import { AcceptBidDialog, AcceptBidDialogData } from '../../shared/accept-bid-dialog/accept-bid-dialog';
 
 @Component({
   selector: 'app-shell',
@@ -35,10 +37,13 @@ export class Shell implements OnInit {
     { label: 'Assets', route: '/assets' },
   ];
 
+  private listings = signal<Listing[]>([]);
+
   constructor(
     public auth: AuthService,
     private socket: SocketService,
     private api: ApiService,
+    private dialog: MatDialog,
     private destroyRef: DestroyRef,
   ) {}
 
@@ -48,10 +53,14 @@ export class Shell implements OnInit {
 
     this.socket.connect(user.id);
 
-    // Load initial notifications
+    // Load initial notifications + listings
     this.api.getNotifications(user.id).subscribe((notifs) => {
       this.notifications.set(notifs);
       this.unreadCount.set(notifs.filter((n) => !n.read).length);
+    });
+
+    this.api.getTraderPortfolio(user.id).subscribe((p) => {
+      this.listings.set(p.listings);
     });
 
     // Real-time notifications — only for signed-in user
@@ -112,5 +121,40 @@ export class Shell implements OnInit {
       pet_sold: '#004d99',
     };
     return map[type] ?? '#727783';
+  }
+
+  onNotifClick(n: Notification): void {
+    if (n.type !== 'bid_received') return;
+
+    // Find the listing for this pet
+    const listing = this.listings().find((l) => l.pet.breedName === n.petBreedName);
+    if (!listing || !listing.highestBid) return;
+
+    this.closeFeed();
+
+    const PET_NAMES: Record<string, string> = {
+      'pet-a1': 'Max', 'pet-a2': 'Luna', 'pet-a3': 'Bubbles',
+    };
+
+    this.dialog.open(AcceptBidDialog, {
+      data: {
+        petName: PET_NAMES[listing.petId] ?? listing.pet.breedName,
+        petBreed: listing.pet.breedName,
+        petHealth: listing.pet.health,
+        petAge: listing.pet.age,
+        intrinsicValue: listing.pet.intrinsicValue,
+        highestBid: {
+          bidderName: n.counterpartyName ?? listing.highestBid.bidderName,
+          amount: n.amount ?? listing.highestBid.amount,
+          timeAgo: this.timeAgo(n.createdAt),
+        },
+        otherOffers: [
+          { bidderName: 'Trader C', amount: 78, timeAgo: '4 minutes ago' },
+          { bidderName: 'Trader A', amount: 62.5, timeAgo: '10 minutes ago' },
+        ],
+        listingId: listing.id,
+      } as AcceptBidDialogData,
+      width: '460px',
+    });
   }
 }

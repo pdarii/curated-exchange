@@ -101,7 +101,7 @@
             <span class="ops-cell ops-cell--value">{{ listing.askingPrice | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
             <span class="ops-cell ops-cell--status">
               @if (listing.highestBid) {
-                <span class="badge badge--primary-sm">1 Bid Received</span>
+                <span class="badge badge--primary-sm" style="cursor: pointer" (click)="openAcceptBid(listing)">1 Bid Received</span>
               } @else {
                 <span>No Bids</span>
               }

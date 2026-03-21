@@ -39,7 +39,12 @@
             </div>
             <div class="feed-popup__list">
               @for (n of notifications(); track n.id) {
-                <div class="feed-item" [class.feed-item--unread]="!n.read">
+                <div
+                  class="feed-item"
+                  [class.feed-item--unread]="!n.read"
+                  [class.feed-item--clickable]="n.type === 'bid_received'"
+                  (click)="onNotifClick(n)"
+                >
                   <div class="feed-item__icon" [style.background-color]="notifColor(n.type)">
                     <mat-icon class="feed-item__mat-icon">{{ notifIcon(n.type) }}</mat-icon>
                   </div>

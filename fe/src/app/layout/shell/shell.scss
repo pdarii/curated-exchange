@@ -181,6 +181,10 @@
     background: #fafafa;
   }
 
+  &--clickable {
+    cursor: pointer;
+  }
+
   &--unread {
     background: #f3f6fc;
 

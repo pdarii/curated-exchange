@@ -1,0 +1,103 @@
+<div class="abd-header">
+  <div>
+    <h2 class="abd-title">Accept Trade Bid</h2>
+    <p class="abd-subtitle">Confirm the final sale for your listing.</p>
+  </div>
+  <button mat-icon-button (click)="cancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="abd-content">
+  <!-- Pet info -->
+  <div class="abd-pet">
+    <div class="abd-pet__avatar"></div>
+    <div class="abd-pet__info">
+      <span class="abd-pet__name">{{ petName }} <mat-icon class="abd-pet__verified">verified</mat-icon></span>
+      <span class="abd-pet__breed">{{ petBreed }}</span>
+      <div class="abd-pet__stats">
+        <span>● {{ petHealth }}% Health</span>
+        <span>📅 {{ petAge }} Yrs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Highest bid card -->
+  <div class="abd-bid-card">
+    <div class="abd-bid-card__top">
+      <div>
+        <span class="abd-bid-card__label">Highest Bid from {{ highestBid.bidderName }}</span>
+        <span class="abd-bid-card__amount">{{ highestBid.amount | currency: 'USD' : 'symbol' : '1.2-2' }} <span class="abd-bid-card__usd">USD</span></span>
+      </div>
+      <span class="abd-bid-card__bidder">
+        <mat-icon>person</mat-icon>
+        {{ highestBid.bidderName }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Value breakdown -->
+  <div class="abd-breakdown">
+    <div class="abd-breakdown__row">
+      <span><mat-icon class="abd-breakdown__icon">functions</mat-icon> Intrinsic Value</span>
+      <span class="abd-breakdown__val">{{ intrinsicValue | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+    </div>
+    <div class="abd-breakdown__row">
+      <span><mat-icon class="abd-breakdown__icon">trending_up</mat-icon> Market Premium</span>
+      <span class="abd-breakdown__val abd-breakdown__val--green">+{{ marketPremium | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+    </div>
+  </div>
+
+  <!-- Projected gain -->
+  <div class="abd-gain">
+    <div>
+      <span class="abd-gain__label">Projected Net Gain</span>
+      <span class="abd-gain__value">{{ projectedGain | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+    </div>
+    <div class="abd-gain__return">
+      <span class="abd-gain__return-label">Return</span>
+      <span class="abd-gain__return-value">+{{ returnPct }}%</span>
+    </div>
+  </div>
+
+  <!-- Other offers (collapsible) -->
+  @if (otherOffers.length > 0) {
+    <button class="abd-toggle" (click)="toggleOffers()">
+      <span>View {{ otherOffers.length }} Other Offers</span>
+      <mat-icon>{{ showOtherOffers ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+
+    @if (showOtherOffers) {
+      <div class="abd-offers">
+        @for (offer of otherOffers; track offer.bidderName) {
+          <div class="abd-offer">
+            <div class="abd-offer__left">
+              <div class="abd-offer__avatar"></div>
+              <div>
+                <span class="abd-offer__name">{{ offer.bidderName }}</span>
+                <span class="abd-offer__time">{{ offer.timeAgo }}</span>
+              </div>
+            </div>
+            <div class="abd-offer__right">
+              <span class="abd-offer__amount">{{ offer.amount | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+              <span class="abd-offer__currency">USD</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</mat-dialog-content>
+
+<div class="abd-actions">
+  <button class="abd-btn abd-btn--accept" (click)="accept()">
+    <mat-icon>check_circle</mat-icon>
+    Accept & Complete Sale
+  </button>
+  <button class="abd-btn abd-btn--reject" (click)="reject()">
+    Cancel & Keep {{ petName }}
+  </button>
+  <p class="abd-disclaimer">
+    This action is irreversible. Funds will be deposited to your <b>wallet instantly</b>.
+  </p>
+</div>

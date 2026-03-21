@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { Pet, Listing, Bid, Notification } from '../../models/domain';
 import { ListForSaleDialog, ListForSaleDialogData } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
+import { AcceptBidDialog, AcceptBidDialogData } from '../../shared/accept-bid-dialog/accept-bid-dialog';
 
 @Component({
   selector: 'app-dashboard',
@@ -166,6 +167,33 @@ export class Dashboard implements OnInit {
     this.dialog.open(ListForSaleDialog, {
       data: { pet: null, pets: unlistedPets } as ListForSaleDialogData,
       width: '440px',
+    });
+  }
+
+  openAcceptBid(listing: Listing): void {
+    if (!listing.highestBid) return;
+    const PET_NAMES: Record<string, string> = {
+      'pet-a1': 'Max', 'pet-a2': 'Luna', 'pet-a3': 'Bubbles',
+    };
+    this.dialog.open(AcceptBidDialog, {
+      data: {
+        petName: PET_NAMES[listing.petId] ?? listing.pet.breedName,
+        petBreed: `Yellow ${listing.pet.breedName}`,
+        petHealth: listing.pet.health,
+        petAge: listing.pet.age,
+        intrinsicValue: listing.pet.intrinsicValue,
+        highestBid: {
+          bidderName: listing.highestBid.bidderName,
+          amount: listing.highestBid.amount,
+          timeAgo: '2 mins ago',
+        },
+        otherOffers: [
+          { bidderName: 'Trader C', amount: 78, timeAgo: '4 minutes ago' },
+          { bidderName: 'Trader A', amount: 62.5, timeAgo: '10 minutes ago' },
+        ],
+        listingId: listing.id,
+      } as AcceptBidDialogData,
+      width: '460px',
     });
   }
 }
