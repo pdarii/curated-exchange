@@ -7,10 +7,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { Pet, Listing, Bid, Notification } from '../../models/domain';
+import { ListForSaleDialog, ListForSaleDialogData } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
 
 @Component({
   selector: 'app-dashboard',
@@ -78,6 +80,7 @@ export class Dashboard implements OnInit {
     private api: ApiService,
     private auth: AuthService,
     private socket: SocketService,
+    private dialog: MatDialog,
     private destroyRef: DestroyRef,
   ) {}
 
@@ -156,5 +159,13 @@ export class Dashboard implements OnInit {
       pet_sold: 'sell',
     };
     return map[type] ?? 'info';
+  }
+
+  openNewListing(): void {
+    const unlistedPets = this.pets().filter((p) => !this.isListed(p.id));
+    this.dialog.open(ListForSaleDialog, {
+      data: { pet: null, pets: unlistedPets } as ListForSaleDialogData,
+      width: '440px',
+    });
   }
 }

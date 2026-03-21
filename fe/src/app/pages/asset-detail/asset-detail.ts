@@ -5,10 +5,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { Pet } from '../../models/domain';
+import { ListForSaleDialog, ListForSaleDialogData } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
 
 const PET_NAMES: Record<string, string> = {
   'pet-a1': 'Max',
@@ -50,6 +52,7 @@ const BREED_LABELS: Record<string, string> = {
 export class AssetDetail implements OnInit {
   pet = signal<Pet | null>(null);
   isListed = signal(false);
+  unlistedPets = signal<Pet[]>([]);
 
   petName = computed(() => PET_NAMES[this.pet()?.id ?? ''] ?? 'Pet');
   breedLabel = computed(() => BREED_LABELS[this.pet()?.breedName ?? ''] ?? this.pet()?.breedName ?? '');
@@ -75,6 +78,7 @@ export class AssetDetail implements OnInit {
     private api: ApiService,
     private auth: AuthService,
     private socket: SocketService,
+    private dialog: MatDialog,
     private destroyRef: DestroyRef,
   ) {}
 
@@ -86,7 +90,9 @@ export class AssetDetail implements OnInit {
     this.api.getTraderPortfolio(user.id).subscribe((portfolio) => {
       const found = portfolio.pets.find((p) => p.id === petId);
       if (found) this.pet.set(found);
-      this.isListed.set(portfolio.listings.some((l) => l.petId === petId));
+      const listedIds = new Set(portfolio.listings.map((l) => l.petId));
+      this.isListed.set(listedIds.has(petId));
+      this.unlistedPets.set(portfolio.pets.filter((p) => !listedIds.has(p.id)));
     });
 
     this.socket
@@ -108,5 +114,14 @@ export class AssetDetail implements OnInit {
 
   stars(desirability: number): boolean[] {
     return Array.from({ length: 5 }, (_, i) => i < Math.round(desirability / 2));
+  }
+
+  openListForSale(): void {
+    const pet = this.pet();
+    if (!pet) return;
+    this.dialog.open(ListForSaleDialog, {
+      data: { pet, pets: this.unlistedPets() } as ListForSaleDialogData,
+      width: '440px',
+    });
   }
 }
