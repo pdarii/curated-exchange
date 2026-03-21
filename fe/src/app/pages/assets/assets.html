@@ -1,0 +1,129 @@
+<!-- Back link -->
+<a routerLink="/dashboard" class="back-link">
+  <mat-icon>arrow_back</mat-icon>
+  Back to Dashboard
+</a>
+
+<!-- Page header -->
+<div class="assets-header">
+  <div class="assets-header__left">
+    <h1 class="assets-header__title">Portfolio Assets</h1>
+    <p class="assets-header__subtitle">Managing curated listings for <b>{{ traderName() }}</b></p>
+  </div>
+
+  <div class="assets-stats">
+    <div class="stat-card">
+      <span class="stat-card__label">Total Assets</span>
+      <span class="stat-card__value">{{ totalAssets() }} Pets</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__label">Avg Health</span>
+      <span class="stat-card__value">{{ avgHealth() }}% <mat-icon class="stat-card__trend">trending_up</mat-icon></span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-card__label">Liquidity</span>
+      <span class="stat-card__value">{{ liquidity() | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Filters bar -->
+<div class="filters-bar">
+  <mat-form-field appearance="outline" class="filters-bar__search">
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput placeholder="Search by breed name (e.g. Labrador)..." [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="filters-bar__select">
+    <mat-label>Pet Type</mat-label>
+    <mat-select [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
+      <mat-option value="">All</mat-option>
+      <mat-option value="Dog">Dog</mat-option>
+      <mat-option value="Cat">Cat</mat-option>
+      <mat-option value="Bird">Bird</mat-option>
+      <mat-option value="Fish">Fish</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="filters-bar__select">
+    <mat-label>Sort by</mat-label>
+    <mat-select [ngModel]="sortField()" (ngModelChange)="sortField.set($event)">
+      <mat-option value="age">Age</mat-option>
+      <mat-option value="health">Health</mat-option>
+      <mat-option value="intrinsicValue">Value</mat-option>
+      <mat-option value="breedName">Name</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+<!-- Assets table -->
+<div class="assets-table-wrap">
+  <div class="assets-row assets-row--header">
+    <span class="assets-cell assets-cell--name">Asset Name</span>
+    <span class="assets-cell assets-cell--breed">Breed</span>
+    <span class="assets-cell assets-cell--type">Type</span>
+    <span class="assets-cell assets-cell--age">Age</span>
+    <span class="assets-cell assets-cell--health">Health</span>
+    <span class="assets-cell assets-cell--value">Intrinsic Value</span>
+    <span class="assets-cell assets-cell--status">Status</span>
+    <span class="assets-cell assets-cell--actions">Actions</span>
+  </div>
+
+  @for (pet of filteredPets(); track pet.id) {
+    <div class="assets-row">
+      <span class="assets-cell assets-cell--name">
+        <span class="assets-cell__icon">{{ typeIcon(pet.type) }}</span>
+        <b>{{ petName(pet.id) }}</b>
+      </span>
+      <span class="assets-cell assets-cell--breed">{{ pet.breedName }}</span>
+      <span class="assets-cell assets-cell--type">{{ pet.type }}</span>
+      <span class="assets-cell assets-cell--age">{{ pet.age | number: '1.1-1' }}y</span>
+      <span class="assets-cell assets-cell--health">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="pet.health"
+          [color]="healthColor(pet.health)"
+        ></mat-progress-bar>
+      </span>
+      <span class="assets-cell assets-cell--value">{{ pet.intrinsicValue | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+      <span class="assets-cell assets-cell--status">
+        @switch (petStatus(pet.id)) {
+          @case ('listed') {
+            <span class="status-badge status-badge--listed">Active Listing</span>
+          }
+          @case ('bid') {
+            <span class="status-badge status-badge--bid">On Bid</span>
+          }
+          @default {
+            <span class="status-badge status-badge--inventory">In Inventory</span>
+          }
+        }
+      </span>
+      <span class="assets-cell assets-cell--actions">
+        <button mat-icon-button [matMenuTriggerFor]="petMenu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #petMenu="matMenu">
+          <button mat-menu-item>
+            <mat-icon>visibility</mat-icon>
+            <span>View Details</span>
+          </button>
+          <button mat-menu-item>
+            <mat-icon>sell</mat-icon>
+            <span>List for Sale</span>
+          </button>
+        </mat-menu>
+      </span>
+    </div>
+  } @empty {
+    <div class="assets-empty">
+      <mat-icon>pets</mat-icon>
+      <p>No pets match your filters</p>
+    </div>
+  }
+</div>
+
+<!-- Pagination -->
+<div class="assets-pagination">
+  <span class="assets-pagination__info">Showing {{ filteredPets().length }} of {{ totalAssets() }} pets</span>
+</div>

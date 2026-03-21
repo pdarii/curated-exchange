@@ -1,5 +1,6 @@
 import { Component, DestroyRef, OnInit, signal, computed } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -16,6 +17,7 @@ import { Pet, Listing, Bid, Notification } from '../../models/domain';
   imports: [
     CurrencyPipe,
     DecimalPipe,
+    RouterLink,
     MatCardModule,
     MatButtonModule,
     MatIconModule,

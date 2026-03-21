@@ -1,0 +1,152 @@
+import { Component, DestroyRef, OnInit, signal, computed } from '@angular/core';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatMenuModule } from '@angular/material/menu';
+import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
+import { SocketService } from '../../services/socket.service';
+import { Pet, PetType } from '../../models/domain';
+
+const PET_NAMES: Record<string, string> = {
+  'pet-a1': 'Max',
+  'pet-a2': 'Luna',
+  'pet-a3': 'Bubbles',
+  'pet-b1': 'Miso',
+  'pet-b2': 'Rio',
+  'pet-c1': 'Snoopy',
+  'pet-c2': 'Cleo',
+  'pet-c3': 'Kiwi',
+  'pet-c4': 'Finn',
+};
+
+const TYPE_ICONS: Record<string, string> = {
+  Dog: '🐕',
+  Cat: '🐱',
+  Bird: '🐦',
+  Fish: '🐠',
+};
+
+type SortField = 'age' | 'health' | 'intrinsicValue' | 'breedName';
+
+@Component({
+  selector: 'app-assets',
+  imports: [
+    CurrencyPipe,
+    DecimalPipe,
+    FormsModule,
+    RouterLink,
+    MatIconModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressBarModule,
+    MatMenuModule,
+  ],
+  templateUrl: './assets.html',
+  styleUrl: './assets.scss',
+})
+export class Assets implements OnInit {
+  pets = signal<Pet[]>([]);
+  listedPetIds = signal<Set<string>>(new Set());
+  bidPetIds = signal<Set<string>>(new Set());
+
+  searchQuery = signal('');
+  typeFilter = signal<PetType | ''>('');
+  sortField = signal<SortField>('age');
+
+  traderName = signal('');
+  private traderId = '';
+
+  // Filtered + sorted pets
+  filteredPets = computed(() => {
+    let result = this.pets();
+    const q = this.searchQuery().toLowerCase();
+    if (q) {
+      result = result.filter(
+        (p) =>
+          p.breedName.toLowerCase().includes(q) ||
+          this.petName(p.id).toLowerCase().includes(q),
+      );
+    }
+    const type = this.typeFilter();
+    if (type) {
+      result = result.filter((p) => p.type === type);
+    }
+    const field = this.sortField();
+    return [...result].sort((a, b) => {
+      if (field === 'breedName') return a.breedName.localeCompare(b.breedName);
+      return (b as any)[field] - (a as any)[field];
+    });
+  });
+
+  // Stats
+  totalAssets = computed(() => this.pets().length);
+  avgHealth = computed(() => {
+    const p = this.pets();
+    return p.length ? Math.round(p.reduce((s, pet) => s + pet.health, 0) / p.length) : 0;
+  });
+  liquidity = computed(() => this.pets().reduce((s, p) => s + p.intrinsicValue, 0));
+
+  constructor(
+    private api: ApiService,
+    private auth: AuthService,
+    private socket: SocketService,
+    private destroyRef: DestroyRef,
+  ) {}
+
+  ngOnInit(): void {
+    const user = this.auth.user();
+    if (!user) return;
+    this.traderId = user.id;
+    this.traderName.set(user.name);
+
+    this.api.getTraderPortfolio(this.traderId).subscribe((p) => {
+      this.pets.set(p.pets);
+      this.listedPetIds.set(new Set(p.listings.map((l) => l.petId)));
+      this.bidPetIds.set(
+        new Set(p.bids.filter((b) => b.status === 'active').map((b) => b.petId)),
+      );
+    });
+
+    this.socket
+      .onPetStatsUpdate()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        this.pets.update((pets) =>
+          pets.map((pet) => {
+            const tick = event.pets.find((p) => p.id === pet.id);
+            return tick ? { ...pet, ...tick } : pet;
+          }),
+        );
+      });
+  }
+
+  petName(id: string): string {
+    return PET_NAMES[id] ?? 'Pet';
+  }
+
+  typeIcon(type: string): string {
+    return TYPE_ICONS[type] ?? '🐾';
+  }
+
+  healthColor(health: number): string {
+    if (health > 70) return 'primary';
+    if (health > 40) return 'accent';
+    return 'warn';
+  }
+
+  petStatus(petId: string): 'listed' | 'bid' | 'inventory' {
+    if (this.listedPetIds().has(petId)) return 'listed';
+    if (this.bidPetIds().has(petId)) return 'bid';
+    return 'inventory';
+  }
+}

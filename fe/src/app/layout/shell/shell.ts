@@ -30,10 +30,9 @@ export class Shell implements OnInit {
   notifications = signal<Notification[]>([]);
 
   readonly navLinks = [
-    { label: 'Assets', route: '/dashboard' },
+    { label: 'Dashboard', route: '/dashboard' },
     { label: 'Market', route: '/market' },
-    { label: 'Trades', route: '/trades' },
-    { label: 'Analysis', route: '/analysis' },
+    { label: 'Assets', route: '/assets' },
   ];
 
   constructor(
