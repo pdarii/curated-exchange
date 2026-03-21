@@ -1,0 +1,134 @@
+<!-- Header -->
+<div class="mkt-header">
+  <div class="mkt-header__left">
+    <h1 class="mkt-header__title">Global Market</h1>
+    <p class="mkt-header__subtitle">Browse active peer-to-peer listings or explore verified retail supply in the exchange.</p>
+  </div>
+
+  <div class="mkt-type-filters">
+    @for (t of typeFilters; track t.value) {
+      <button
+        class="type-pill"
+        [class.type-pill--active]="typeFilter() === t.value"
+        (click)="setTypeFilter(t.value)"
+      >
+        {{ t.icon }} {{ t.label }}
+      </button>
+    }
+  </div>
+</div>
+
+<!-- ═══ Secondary Market (P2P) ═══ -->
+<section class="mkt-section">
+  <div class="mkt-section__header">
+    <div class="mkt-section__title-row">
+      <mat-icon class="mkt-section__icon">swap_horiz</mat-icon>
+      <h2 class="mkt-section__title">Secondary Market (P2P)</h2>
+    </div>
+    <div class="mkt-section__actions">
+      <div class="sort-inline">
+        <span class="sort-inline__label">Sort by</span>
+        <mat-form-field appearance="outline" class="sort-inline__field">
+          <mat-select [(ngModel)]="sortField">
+            <mat-option value="intrinsicValue">Intrinsic Value</mat-option>
+            <mat-option value="askingPrice">Asking Price</mat-option>
+            <mat-option value="age">Age</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <button class="btn-create-listing" (click)="openCreateListing()">Create Listing</button>
+    </div>
+  </div>
+
+  <div class="p2p-table">
+    <div class="p2p-row p2p-row--header">
+      <span class="p2p-cell p2p-cell--breed">Pet Breed</span>
+      <span class="p2p-cell p2p-cell--seller">Seller</span>
+      <span class="p2p-cell p2p-cell--asking">Asking Price</span>
+      <span class="p2p-cell p2p-cell--intrinsic">Intrinsic Value</span>
+      <span class="p2p-cell p2p-cell--health">Health</span>
+      <span class="p2p-cell p2p-cell--age">Age</span>
+      <span class="p2p-cell p2p-cell--action">Action</span>
+    </div>
+
+    @for (listing of filteredListings(); track listing.id) {
+      <div class="p2p-row">
+        <span class="p2p-cell p2p-cell--breed">
+          <div class="p2p-avatar"></div>
+          <div>
+            <b>{{ listing.petBreed }}</b>
+            @if (hasActiveBid(listing)) {
+              <span class="own-badge">Your Active Bid</span>
+            }
+          </div>
+        </span>
+        <span class="p2p-cell p2p-cell--seller">{{ listing.seller }}</span>
+        <span class="p2p-cell p2p-cell--asking">{{ listing.askingPrice | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+        <span class="p2p-cell p2p-cell--intrinsic">{{ listing.intrinsicValue | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+        <span class="p2p-cell p2p-cell--health">
+          <span class="health-pill" [class]="healthPillClass(listing.health)">{{ listing.health }}%</span>
+          <div class="health-bar-mini">
+            <div class="health-bar-mini__fill" [class]="healthBarClass(listing.health)" [style.width.%]="listing.health"></div>
+          </div>
+        </span>
+        <span class="p2p-cell p2p-cell--age">{{ listing.age | number: '1.1-1' }} Yrs</span>
+        <span class="p2p-cell p2p-cell--action">
+          @if (hasActiveBid(listing)) {
+            <button class="action-btn action-btn--amber" (click)="openPlaceBid(listing)">Update Bid</button>
+          } @else if (!isOwnListing(listing)) {
+            <button class="action-btn action-btn--blue" (click)="openPlaceBid(listing)">Place Bid</button>
+          }
+        </span>
+      </div>
+    } @empty {
+      <div class="p2p-empty">
+        <mat-icon>storefront</mat-icon>
+        <p>No listings match your filter</p>
+      </div>
+    }
+  </div>
+
+  <!-- Pagination -->
+  @if (showPagination()) {
+    <div class="mkt-pagination">
+      <span class="mkt-pagination__arrow" (click)="prevPage()">&lt;</span>
+      @for (page of pages(); track page) {
+        <span
+          class="mkt-pagination__page"
+          [class.mkt-pagination__page--active]="page === currentPage()"
+          (click)="goToPage(page)"
+        >{{ page }}</span>
+      }
+      <span class="mkt-pagination__arrow" (click)="nextPage()">&gt;</span>
+    </div>
+  }
+</section>
+
+<!-- ═══ New Retail Supply ═══ -->
+<section class="mkt-section">
+  <div class="mkt-section__header">
+    <div class="mkt-section__title-row">
+      <mat-icon class="mkt-section__icon" style="color: #007367">add_circle</mat-icon>
+      <h2 class="mkt-section__title">New Retail Supply</h2>
+    </div>
+    <a class="mkt-section__link">View Catalog →</a>
+  </div>
+
+  <div class="retail-grid">
+    @for (item of retailCards(); track item.breed.name) {
+      <div class="retail-card">
+        <div class="retail-card__top">
+          <div class="retail-card__img"></div>
+          <div class="retail-card__info">
+            <div class="retail-card__name-row">
+              <span class="retail-card__name">{{ item.breed.name }}</span>
+              <span class="retail-card__price">{{ item.price | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+            </div>
+            <span class="retail-card__meta">{{ item.supply }} Available · {{ item.breed.type }}</span>
+          </div>
+        </div>
+        <button class="retail-card__buy" (click)="openBuyRetail(item)">Buy</button>
+      </div>
+    }
+  </div>
+</section>

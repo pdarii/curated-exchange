@@ -1,0 +1,76 @@
+<div class="purchase-header">
+  <h2 class="purchase-title">Purchase Pet</h2>
+  <button mat-icon-button (click)="cancel()" class="purchase-close">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="purchase-content">
+  <!-- Pet info card -->
+  <div class="pet-info-card">
+    <div class="pet-info-card__img"></div>
+    <div class="pet-info-card__details">
+      <span class="pet-info-card__name">{{ breed.name }}</span>
+      <span class="pet-info-card__breed">Breed: Purebred {{ breed.name }}</span>
+      <span class="pet-info-card__price">{{ breed.basePrice | currency: 'USD' : 'symbol' : '1.0-0' }} / pet</span>
+    </div>
+  </div>
+
+  <!-- Quantity -->
+  <label class="field-label">Quantity</label>
+  <div class="qty-control">
+    <button class="qty-btn" (click)="decrement()" [disabled]="quantity <= 1">
+      <mat-icon>remove</mat-icon>
+    </button>
+    <span class="qty-value">{{ quantity }}</span>
+    <button class="qty-btn" (click)="increment()" [disabled]="quantity >= maxQuantity">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <!-- Stats -->
+  <div class="purchase-stats">
+    <div class="purchase-stat">
+      <mat-icon class="purchase-stat__icon">schedule</mat-icon>
+      <span class="purchase-stat__label">Lifespan</span>
+      <span class="purchase-stat__value">{{ breed.lifespan }}y</span>
+    </div>
+    <div class="purchase-stat">
+      <mat-icon class="purchase-stat__icon">star</mat-icon>
+      <span class="purchase-stat__label">Desirability</span>
+      <span class="purchase-stat__value">{{ breed.desirability }}/10</span>
+    </div>
+  </div>
+
+  <!-- Maintenance -->
+  <div class="maintenance-row">
+    <div class="maintenance-row__left">
+      <mat-icon class="maintenance-row__icon">payments</mat-icon>
+      <span>Maintenance Cost</span>
+    </div>
+    <span class="maintenance-row__value">${{ breed.maintenance }}/mo</span>
+  </div>
+  <mat-progress-bar mode="determinate" [value]="breed.maintenance * 10" color="primary" class="maintenance-bar"></mat-progress-bar>
+
+  <!-- Total cost -->
+  <div class="total-row">
+    <span class="total-row__label">Total Cost</span>
+    <span class="total-row__value">{{ totalCost | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+  </div>
+
+  <!-- Available cash -->
+  <div class="cash-row">
+    <div class="cash-row__left">
+      <mat-icon class="cash-row__icon">account_balance_wallet</mat-icon>
+      <span>Available Cash</span>
+    </div>
+    <span class="cash-row__value">{{ availableCash | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="purchase-actions">
+  <button mat-button (click)="cancel()" class="purchase-cancel">Cancel</button>
+  <button mat-flat-button (click)="confirm()" [disabled]="!canConfirm" class="purchase-confirm">
+    Confirm Purchase
+  </button>
+</mat-dialog-actions>

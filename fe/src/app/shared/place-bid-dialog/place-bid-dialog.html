@@ -1,0 +1,70 @@
+<h2 mat-dialog-title class="bid-title">{{ isUpdate ? 'Update Bid' : 'Place a Bid' }}</h2>
+
+<mat-dialog-content class="bid-content">
+  <!-- Current Item -->
+  <div class="bid-item">
+    <div class="bid-item__avatar"></div>
+    <div class="bid-item__info">
+      <span class="bid-item__label">Current Item</span>
+      <span class="bid-item__name">{{ petBreed }}</span>
+      <span class="bid-item__seller">● Owned by <b>{{ seller }}</b></span>
+    </div>
+  </div>
+
+  <!-- Price cards -->
+  <div class="bid-prices">
+    <div class="bid-price-card bid-price-card--asking">
+      <span class="bid-price-card__label">Asking Price</span>
+      <span class="bid-price-card__value">{{ askingPrice | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+    </div>
+    <div class="bid-price-card">
+      <span class="bid-price-card__label">Intrinsic Value</span>
+      <span class="bid-price-card__value">{{ intrinsicValue | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+    </div>
+  </div>
+
+  <!-- Available Cash -->
+  <div class="bid-cash">
+    <div class="bid-cash__left">
+      <mat-icon class="bid-cash__icon">account_balance_wallet</mat-icon>
+      <span>Available Cash Balance</span>
+    </div>
+    <span class="bid-cash__amount">{{ availableCash | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+  </div>
+
+  <!-- Hint -->
+  @if (currentHighestBid > 0) {
+    <div class="bid-hint">
+      <mat-icon class="bid-hint__icon">info</mat-icon>
+      <span>Your bid must be higher than the current highest bid ({{ currentHighestBid | currency: 'USD' : 'symbol' : '1.2-2' }}) and within your available cash balance.</span>
+    </div>
+  }
+
+  <!-- Bid Amount -->
+  <label class="field-label">Bid Amount ($)</label>
+  <div class="bid-input-wrap">
+    <span class="bid-input-wrap__prefix">$</span>
+    <input class="bid-input-wrap__input" type="number" [(ngModel)]="bidAmount" min="0.01" step="0.01" placeholder="0.00" />
+  </div>
+
+  <!-- Validation messages -->
+  @if (insufficientFunds) {
+    <p class="bid-error">
+      <mat-icon>warning</mat-icon>
+      Insufficient funds for this bid amount.
+    </p>
+  }
+  @if (bidTooLow) {
+    <p class="bid-warn">
+      <mat-icon>info</mat-icon>
+      Your bid is below the current highest bid.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="bid-actions">
+  <button mat-button (click)="cancel()" class="bid-cancel">Cancel</button>
+  <button mat-flat-button (click)="confirm()" [disabled]="!canConfirm" class="bid-confirm">
+    {{ isUpdate ? 'Update Bid' : 'Confirm Bid' }}
+  </button>
+</mat-dialog-actions>

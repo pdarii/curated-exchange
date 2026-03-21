@@ -1,0 +1,247 @@
+.bid-title {
+  font-family: var(--font-display, 'Manrope', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1c1c;
+  padding: 1.5rem 1.5rem 0.5rem;
+}
+
+.bid-content {
+  padding: 0.5rem 1.5rem;
+  min-width: 360px;
+}
+
+// ── Current item card ───────────────────────────────────────────
+.bid-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid #e2e2e2;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+
+  &__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #e8e8e8;
+    flex-shrink: 0;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__label {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #f89c00;
+  }
+
+  &__name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1c1c;
+  }
+
+  &__seller {
+    font-size: 0.6875rem;
+    color: #727783;
+  }
+}
+
+// ── Price cards ─────────────────────────────────────────────────
+.bid-prices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.bid-price-card {
+  border: 1px solid #e2e2e2;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  &--asking {
+    background: #fff8ee;
+    border-color: #ffe0a0;
+  }
+
+  &__label {
+    font-size: 0.5625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #727783;
+  }
+
+  &__value {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1a1c1c;
+  }
+}
+
+// ── Available cash ──────────────────────────────────────────────
+.bid-cash {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #424752;
+  }
+
+  &__icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+    color: #f89c00;
+  }
+
+  &__amount {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1a1c1c;
+  }
+}
+
+// ── Hint ────────────────────────────────────────────────────────
+.bid-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  background: #f3f6fc;
+  border-radius: 0.375rem;
+  margin-bottom: 1rem;
+  font-size: 0.6875rem;
+  color: #424752;
+  line-height: 1.4;
+
+  &__icon {
+    font-size: 0.875rem;
+    width: 0.875rem;
+    height: 0.875rem;
+    color: #004d99;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+}
+
+// ── Bid field ───────────────────────────────────────────────────
+.field-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #727783;
+  margin-bottom: 0.375rem;
+}
+
+.bid-input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #e2e2e2;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  transition: border-color 0.15s;
+
+  &:focus-within {
+    border-color: #004d99;
+  }
+
+  &__prefix {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #727783;
+    margin-right: 0.5rem;
+  }
+
+  &__input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1a1c1c;
+    background: transparent;
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    &::placeholder {
+      color: #c2c6d4;
+      font-weight: 400;
+    }
+  }
+}
+
+// ── Validation ──────────────────────────────────────────────────
+.bid-error, .bid-warn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.6875rem;
+  margin: 0;
+
+  mat-icon {
+    font-size: 0.875rem;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}
+
+.bid-error {
+  color: #ba1a1a;
+}
+
+.bid-warn {
+  color: #f89c00;
+}
+
+// ── Actions ─────────────────────────────────────────────────────
+.bid-actions {
+  padding: 0.75rem 1.5rem 1.25rem;
+}
+
+.bid-cancel {
+  color: #727783 !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.04em;
+}
+
+.bid-confirm {
+  background: linear-gradient(135deg, #004d99, #1565c0) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.8125rem !important;
+}
