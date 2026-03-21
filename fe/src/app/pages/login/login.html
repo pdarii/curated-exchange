@@ -1,0 +1,84 @@
+<div class="login-page">
+  <!-- Login card -->
+  <div class="login-card">
+    <!-- Logo & title -->
+    <div class="flex flex-col items-center mb-8">
+      <div class="flex items-center gap-2 mb-6">
+        <span class="material-icons text-primary text-3xl">pets</span>
+        <span class="font-display text-title-lg font-bold text-on-surface">The Curated Exchange</span>
+      </div>
+      <h1 class="font-display text-display-sm font-bold text-on-surface mb-2">Sign In</h1>
+      <p class="text-body-md text-on-surface-variant">Enter your credentials to access the exchange</p>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()" class="flex flex-col gap-5 w-full">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Email / Username</mat-label>
+        <input
+          matInput
+          type="text"
+          placeholder="alice@kinship.com"
+          [(ngModel)]="username"
+          name="username"
+          required
+        />
+        <mat-icon matSuffix>person_outline</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          [type]="showPassword() ? 'text' : 'password'"
+          placeholder="Enter your password"
+          [(ngModel)]="password"
+          name="password"
+          required
+        />
+        <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())">
+          <mat-icon>{{ showPassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+      </mat-form-field>
+
+      @if (errorMessage()) {
+        <p class="text-error text-body-sm">{{ errorMessage() }}</p>
+      }
+
+      <div class="flex items-center justify-between">
+        <mat-checkbox [(ngModel)]="rememberMe" name="rememberMe">
+          <span class="text-body-sm text-on-surface-variant">Remember me</span>
+        </mat-checkbox>
+        <a class="text-body-sm text-secondary-container font-medium cursor-pointer hover:underline">
+          Forgot Password?
+        </a>
+      </div>
+
+      <button
+        mat-flat-button
+        type="submit"
+        class="gradient-primary w-full !h-12 !rounded-md !text-label-lg !font-semibold"
+      >
+        Sign In
+        <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+      </button>
+
+      <p class="text-center text-body-sm text-on-surface-variant">
+        Don't have an account?
+        <a class="text-primary font-semibold cursor-pointer hover:underline">Sign Up</a>
+      </p>
+    </form>
+
+    <!-- Security badges -->
+    <div class="flex items-center justify-center gap-6 mt-8 pt-6">
+      <div class="flex items-center gap-1.5 text-on-surface-variant">
+        <mat-icon class="!text-label-lg">lock</mat-icon>
+        <span class="text-label-sm tracking-widest uppercase">End-to-End Encrypted</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-on-surface-variant">
+        <mat-icon class="!text-label-lg">verified_user</mat-icon>
+        <span class="text-label-sm tracking-widest uppercase">Verified Exchange</span>
+      </div>
+    </div>
+  </div>
+</div>
