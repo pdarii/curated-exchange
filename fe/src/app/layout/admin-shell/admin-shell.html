@@ -1,0 +1,35 @@
+<header class="admin-header">
+  <div class="admin-header__inner">
+    <a routerLink="/admin" class="admin-logo">
+      <span class="admin-logo__text">The Curated Exchange</span>
+    </a>
+
+    <nav class="admin-nav">
+      @for (link of navLinks; track link.route) {
+        <a
+          [routerLink]="link.route"
+          routerLinkActive="admin-nav__link--active"
+          [routerLinkActiveOptions]="{ exact: link.route === '/admin' }"
+          class="admin-nav__link"
+        >
+          {{ link.label }}
+        </a>
+      }
+    </nav>
+
+    <span class="flex-1"></span>
+
+    <div class="admin-actions">
+      <button mat-icon-button>
+        <mat-icon>notifications_none</mat-icon>
+      </button>
+      <button mat-icon-button (click)="logout()">
+        <mat-icon>settings</mat-icon>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="admin-main">
+  <router-outlet />
+</main>

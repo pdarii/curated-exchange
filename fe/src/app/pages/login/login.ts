@@ -36,7 +36,8 @@ export class Login {
   onSubmit(): void {
     this.errorMessage.set('');
     if (this.auth.login(this.username, this.password)) {
-      this.router.navigate(['/']);
+      const user = this.auth.user();
+      this.router.navigate([user?.role === 'admin' ? '/admin' : '/']);
     } else {
       this.errorMessage.set(
         'Invalid credentials. Try: alice, bob, charlie, or admin',

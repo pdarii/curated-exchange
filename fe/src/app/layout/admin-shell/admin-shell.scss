@@ -1,0 +1,76 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f3f3f3;
+}
+
+.admin-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 77, 153, 0.08);
+}
+
+.admin-header__inner {
+  display: flex;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 56px;
+}
+
+.admin-logo {
+  text-decoration: none;
+
+  &__text {
+    font-family: var(--font-display, 'Manrope', sans-serif);
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: #004d99;
+  }
+}
+
+.admin-nav {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 2rem;
+
+  &__link {
+    font-family: var(--font-body, 'Inter', sans-serif);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #424752;
+    text-decoration: none;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    transition: color 0.15s;
+
+    &:hover { color: #004d99; }
+
+    &--active {
+      color: #004d99;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 2px;
+    }
+  }
+}
+
+.admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.admin-main {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.5rem;
+}

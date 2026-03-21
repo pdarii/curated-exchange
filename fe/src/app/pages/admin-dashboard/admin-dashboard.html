@@ -1,0 +1,76 @@
+<!-- Header -->
+<div class="adm-header">
+  <h1 class="adm-header__title">Market Overview</h1>
+  <p class="adm-header__subtitle">Real-time ecosystem health and trade performance metrics.</p>
+</div>
+
+<!-- Stats strip -->
+<div class="adm-stats">
+  <div class="adm-stat">
+    <span class="adm-stat__label">Total Volume</span>
+    <span class="adm-stat__value">{{ stats.totalVolume | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+    <span class="adm-stat__trend adm-stat__trend--up">↗ 12.8% vs last month</span>
+  </div>
+  <div class="adm-stat">
+    <span class="adm-stat__label">Avg Trade Price</span>
+    <span class="adm-stat__value">{{ stats.avgTradePrice | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+    <span class="adm-stat__trend adm-stat__trend--up">↗ 4.2% stability</span>
+  </div>
+  <div class="adm-stat">
+    <span class="adm-stat__label">Active Listings</span>
+    <span class="adm-stat__value">{{ stats.activeListings }}</span>
+    <mat-progress-bar mode="determinate" [value]="75" color="primary"></mat-progress-bar>
+  </div>
+  <div class="adm-stat">
+    <span class="adm-stat__label">System Uptime</span>
+    <span class="adm-stat__value">{{ stats.systemUptime }}%</span>
+    <span class="adm-stat__trend adm-stat__trend--up">● All nodes healthy</span>
+  </div>
+</div>
+
+<!-- Main grid -->
+<div class="adm-grid">
+  <!-- Chart -->
+  <div class="adm-chart-card">
+    <h3 class="adm-card-title">Weekly Transaction Momentum</h3>
+    <p class="adm-card-subtitle">Relative volume across all categories</p>
+    <div class="adm-chart">
+      <div class="adm-bar" style="height: 55%"></div>
+      <div class="adm-bar" style="height: 70%"></div>
+      <div class="adm-bar adm-bar--accent" style="height: 45%"></div>
+      <div class="adm-bar" style="height: 80%"></div>
+      <div class="adm-bar adm-bar--accent" style="height: 60%"></div>
+      <div class="adm-bar" style="height: 90%"></div>
+      <div class="adm-bar adm-bar--dark" style="height: 95%"></div>
+    </div>
+  </div>
+
+  <!-- Activity feed -->
+  <div class="adm-feed-card">
+    <h3 class="adm-card-title">Live Activity Feed</h3>
+
+    <div class="adm-feed">
+      @for (item of activityFeed; track item.text) {
+        <div class="adm-feed-item">
+          <div class="adm-feed-item__avatar" [style.background-color]="item.color">
+            {{ item.avatar }}
+          </div>
+          <div class="adm-feed-item__body">
+            <p class="adm-feed-item__text" [innerHTML]="item.text"></p>
+            <div class="adm-feed-item__meta">
+              <span class="adm-feed-item__time">● {{ item.time }}</span>
+              @if (item.tag) {
+                <span class="adm-feed-item__tag" [style.background-color]="item.tagColor">{{ item.tag }}</span>
+              }
+              @if (item.amount) {
+                <span class="adm-feed-item__amount">{{ item.amount | currency: 'USD' : 'symbol' : '1.0-0' }}</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <button class="adm-feed-btn">View All Activity Logs</button>
+  </div>
+</div>

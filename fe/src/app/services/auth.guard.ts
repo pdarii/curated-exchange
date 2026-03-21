@@ -11,3 +11,13 @@ export const authGuard: CanActivateFn = () => {
   }
   return router.createUrlTree(['/login']);
 };
+
+export const traderGuard: CanActivateFn = () => {
+  const auth = inject(AuthService);
+  const router = inject(Router);
+  const user = auth.user();
+
+  if (!user) return router.createUrlTree(['/login']);
+  if (user.role === 'admin') return router.createUrlTree(['/admin']);
+  return true;
+};

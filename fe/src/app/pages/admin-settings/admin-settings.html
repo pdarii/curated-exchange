@@ -1,0 +1,109 @@
+<!-- Header -->
+<div class="set-header">
+  <h1 class="set-header__title">Platform Settings</h1>
+  <p class="set-header__subtitle">Manage global simulation variables, inventory injection pipelines, and market risk parameters for The Curated Exchange ecosystem.</p>
+</div>
+
+<div class="set-grid">
+  <!-- Left column -->
+  <div class="set-left">
+    <!-- Simulation Parameters -->
+    <div class="set-card">
+      <div class="set-card__header">
+        <mat-icon class="set-card__icon">settings</mat-icon>
+        <h3 class="set-card__title">Simulation Parameters</h3>
+      </div>
+
+      <div class="sim-param">
+        <span class="sim-param__label">Time Dilation: 1 Year of Pet Life</span>
+        <span class="sim-param__value">{{ timeDilation() }} Minutes</span>
+      </div>
+      <mat-slider min="1" max="30" step="1" class="sim-slider">
+        <input matSliderThumb [ngModel]="timeDilation()" (ngModelChange)="timeDilation.set($event)" />
+      </mat-slider>
+
+      <div class="sim-row">
+        <span class="sim-row__label">1 Minute Interval</span>
+        <span class="sim-row__label">60 Minutes Estimated</span>
+      </div>
+
+      <div class="sim-gauges">
+        <div class="sim-gauge">
+          <span class="sim-gauge__label">Health Fluctuation Rate</span>
+          <div class="sim-gauge__bar-row">
+            <mat-progress-bar mode="determinate" [value]="healthFluctuation() * 5" color="warn"></mat-progress-bar>
+            <span class="sim-gauge__val">+{{ healthFluctuation() }}%</span>
+          </div>
+        </div>
+        <div class="sim-gauge">
+          <span class="sim-gauge__label">Metabolic Aging Curve</span>
+          <div class="sim-gauge__bar-row">
+            <mat-progress-bar mode="determinate" [value]="50" color="accent"></mat-progress-bar>
+            <span class="sim-gauge__val">{{ metabolicCurve() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Inventory List -->
+    <div class="set-card">
+      <div class="set-card__header">
+        <mat-icon class="set-card__icon">inventory_2</mat-icon>
+        <h3 class="set-card__title">Platform Inventory List</h3>
+        <span class="set-card__action">Download .CSV</span>
+      </div>
+
+      <div class="inv-table">
+        <div class="inv-row inv-row--header">
+          <span class="inv-cell inv-cell--breed">Breed</span>
+          <span class="inv-cell inv-cell--priority">Priority</span>
+          <span class="inv-cell inv-cell--supply">Retail Supply</span>
+          <span class="inv-cell inv-cell--stock">Total Stock</span>
+        </div>
+
+        @for (item of inventory; track item.name) {
+          <div class="inv-row">
+            <span class="inv-cell inv-cell--breed">
+              <div class="inv-avatar"></div>
+              {{ item.name }}
+            </span>
+            <span class="inv-cell inv-cell--priority">
+              <span class="priority" [class]="priorityClass(item.priority)">{{ item.priority }}</span>
+            </span>
+            <span class="inv-cell inv-cell--supply">{{ item.retailSupply }}</span>
+            <span class="inv-cell inv-cell--stock">{{ item.totalStock }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Right column — Inject Inventory -->
+  <div class="set-right">
+    <div class="set-card">
+      <div class="set-card__header">
+        <h3 class="set-card__title">Inject Inventory</h3>
+        <span class="inject-tag">Pre-defined Stock</span>
+      </div>
+      <p class="inject-subtitle">Instantly add verified breeds to the Retail Supply pool.</p>
+
+      <div class="inject-list">
+        @for (item of injectItems; track item.name) {
+          <div class="inject-item">
+            <div class="inject-item__avatar"></div>
+            <div class="inject-item__info">
+              <span class="inject-item__name">{{ item.name }}</span>
+              <span class="inject-item__sub">{{ item.subtitle }}</span>
+            </div>
+            <button class="inject-btn">Inject</button>
+          </div>
+        }
+      </div>
+
+      <button class="bulk-inject-btn">
+        <mat-icon>add</mat-icon>
+        Bulk Inject All Stock
+      </button>
+    </div>
+  </div>
+</div>
