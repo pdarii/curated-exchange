@@ -216,6 +216,7 @@ export const MOCK_LISTINGS: Listing[] = [
 // Mock Notifications
 // ---------------------------------------------------------------------------
 export const MOCK_NOTIFICATIONS: Notification[] = [
+  // Bid events (show in Activity Feed popup, NOT in Global Market sidebar)
   {
     id: 'notif-1',
     traderId: 'trader-a',
@@ -249,15 +250,40 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
     read: true,
     createdAt: '2026-03-21T11:00:00Z',
   },
+  // My bid accepted
   {
     id: 'notif-4',
     traderId: 'trader-a',
-    type: 'pet_purchased',
-    message: 'You purchased a Goldfish from the retail market',
-    petBreedName: 'Goldfish',
-    amount: 5,
-    counterpartyName: null,
+    type: 'bid_accepted',
+    message: '<b>Trader C</b> accepted your bid on <b>Canary</b> for <b>$22</b>',
+    petBreedName: 'Canary',
+    amount: 22,
+    counterpartyName: 'Charlie',
     read: true,
-    createdAt: '2026-03-21T08:15:00Z',
+    createdAt: '2026-03-21T09:30:00Z',
+  },
+  // Bids on my items
+  {
+    id: 'notif-6',
+    traderId: 'trader-a',
+    type: 'bid_received',
+    message: '<b>Trader B</b> placed a <b>$55</b> bid on your <b>Poodle</b>',
+    petBreedName: 'Poodle',
+    amount: 55,
+    counterpartyName: 'Bob',
+    read: false,
+    createdAt: '2026-03-21T10:30:00Z',
+  },
+  // My outbid
+  {
+    id: 'notif-7',
+    traderId: 'trader-a',
+    type: 'bid_outbid',
+    message: 'Your bid on <b>Bengal</b> was outbid — new high bid <b>$48</b>',
+    petBreedName: 'Bengal',
+    amount: 48,
+    counterpartyName: 'Charlie',
+    read: true,
+    createdAt: '2026-03-21T08:45:00Z',
   },
 ];

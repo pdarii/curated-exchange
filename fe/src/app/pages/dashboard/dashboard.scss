@@ -67,6 +67,14 @@
   align-items: start;
 }
 
+.dash-sidebar {
+  position: sticky;
+  top: calc(56px + 1.5rem); // header height + padding
+  max-height: calc(100vh - 56px - 3rem);
+  display: flex;
+  flex-direction: column;
+}
+
 .dash-section {
   margin-bottom: 1.5rem;
 
@@ -308,6 +316,11 @@
   border-radius: 0.625rem;
   padding: 1.25rem;
   box-shadow: 0 1px 4px rgba(0, 77, 153, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1;
+  min-height: 0;
 
   &__header {
     display: flex;
@@ -346,6 +359,9 @@
   flex-direction: column;
   gap: 0.125rem;
   margin-bottom: 1rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .feed-item {

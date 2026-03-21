@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal, computed } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
@@ -34,6 +34,41 @@ export class Dashboard implements OnInit {
   listings = signal<Listing[]>([]);
   bids = signal<Bid[]>([]);
   notifications = signal<Notification[]>([]);
+  marketEvents = signal<Notification[]>([
+    {
+      id: 'market-1',
+      traderId: '',
+      type: 'pet_sold',
+      message: '<b>Trader C</b> listed a <b>Bengal</b> for <b>$85</b>',
+      petBreedName: 'Bengal',
+      amount: 85,
+      counterpartyName: 'Charlie',
+      read: false,
+      createdAt: '2026-03-21T10:15:00Z',
+    },
+    {
+      id: 'market-2',
+      traderId: '',
+      type: 'pet_sold',
+      message: 'New Supply: <b>10 Labrador</b> pups available for minting',
+      petBreedName: 'Labrador',
+      amount: null,
+      counterpartyName: null,
+      read: false,
+      createdAt: '2026-03-21T09:00:00Z',
+    },
+    {
+      id: 'market-3',
+      traderId: '',
+      type: 'pet_sold',
+      message: '<b>Trader B</b> listed a <b>Macaw</b> for <b>$150</b>',
+      petBreedName: 'Macaw',
+      amount: 150,
+      counterpartyName: 'Bob',
+      read: true,
+      createdAt: '2026-03-21T08:30:00Z',
+    },
+  ]);
 
   private traderId = '';
 

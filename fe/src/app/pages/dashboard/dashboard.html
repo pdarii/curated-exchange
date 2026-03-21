@@ -134,7 +134,7 @@
       </div>
 
       <div class="sidebar-feed">
-        @for (n of notifications(); track n.id) {
+        @for (n of marketEvents(); track n.id) {
           <div class="feed-item" [class.feed-item--unread]="!n.read">
             <span class="feed-dot"></span>
             <div class="feed-item__content">

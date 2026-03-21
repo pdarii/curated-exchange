@@ -23,9 +23,42 @@
 
     <!-- Right actions -->
     <div class="shell-actions">
-      <button mat-icon-button [matBadge]="unreadCount()" matBadgeColor="warn" [matBadgeHidden]="unreadCount() === 0" matBadgeSize="small">
-        <mat-icon>notifications_none</mat-icon>
-      </button>
+      <div class="notif-anchor">
+        <button mat-icon-button (click)="toggleFeed()" [matBadge]="unreadCount()" matBadgeColor="warn" [matBadgeHidden]="unreadCount() === 0" matBadgeSize="small">
+          <mat-icon>{{ feedOpen() ? 'notifications' : 'notifications_none' }}</mat-icon>
+        </button>
+
+        <!-- Notification popup -->
+        @if (feedOpen()) {
+          <div class="feed-popup">
+            <div class="feed-popup__header">
+              <h3 class="feed-popup__title">Activity Feed</h3>
+              <button mat-icon-button (click)="closeFeed()" class="feed-popup__close">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+            <div class="feed-popup__list">
+              @for (n of notifications(); track n.id) {
+                <div class="feed-item" [class.feed-item--unread]="!n.read">
+                  <div class="feed-item__icon" [style.background-color]="notifColor(n.type)">
+                    <mat-icon class="feed-item__mat-icon">{{ notifIcon(n.type) }}</mat-icon>
+                  </div>
+                  <div class="feed-item__body">
+                    <p class="feed-item__text" [innerHTML]="n.message"></p>
+                    <span class="feed-item__time">{{ timeAgo(n.createdAt) }}</span>
+                  </div>
+                </div>
+              } @empty {
+                <div class="feed-popup__empty">
+                  <mat-icon>notifications_off</mat-icon>
+                  <p>No notifications yet</p>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
       <div class="shell-avatar"></div>
       <button mat-icon-button (click)="logout()">
         <mat-icon>account_balance_wallet</mat-icon>
@@ -33,6 +66,11 @@
     </div>
   </div>
 </header>
+
+<!-- Backdrop to close popup -->
+@if (feedOpen()) {
+  <div class="feed-backdrop" (click)="closeFeed()"></div>
+}
 
 <!-- Page content -->
 <main class="shell-main">
