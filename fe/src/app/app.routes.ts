@@ -24,6 +24,10 @@ export const routes: Routes = [
         path: 'assets/:id',
         loadComponent: () => import('./pages/asset-detail/asset-detail').then((m) => m.AssetDetail),
       },
+      {
+        path: 'assets/:id/history',
+        loadComponent: () => import('./pages/trade-history/trade-history').then((m) => m.TradeHistory),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

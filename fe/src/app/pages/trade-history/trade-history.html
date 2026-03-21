@@ -1,0 +1,83 @@
+<!-- Breadcrumb -->
+<div class="breadcrumb">
+  <a routerLink="/assets" class="breadcrumb__link">Inventory</a>
+  <span class="breadcrumb__sep">›</span>
+  <span class="breadcrumb__current">{{ petName() }} ({{ petBreed() }})</span>
+</div>
+
+<!-- Header -->
+<div class="th-header">
+  <h1 class="th-header__title">Trade History: {{ petName() }}</h1>
+</div>
+
+<!-- Stats row -->
+<div class="th-stats">
+  <div class="th-stat-card">
+    <div class="th-stat-card__top">
+      <mat-icon class="th-stat-card__icon">swap_horiz</mat-icon>
+      <span class="th-stat-tag th-stat-tag--teal">Lifetime</span>
+    </div>
+    <span class="th-stat-card__label">Total Trades</span>
+    <span class="th-stat-card__value">{{ totalTrades() }}</span>
+  </div>
+
+  <div class="th-stat-card th-stat-card--accent">
+    <div class="th-stat-card__top">
+      <mat-icon class="th-stat-card__icon">trending_up</mat-icon>
+      <span class="th-stat-tag th-stat-tag--green">+30.0%</span>
+    </div>
+    <span class="th-stat-card__label">Peak Valuation</span>
+    <span class="th-stat-card__value">{{ peakValuation() | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+  </div>
+
+  <div class="th-stat-card">
+    <div class="th-stat-card__top">
+      <mat-icon class="th-stat-card__icon">calendar_today</mat-icon>
+      <span class="th-stat-tag th-stat-tag--blue">Veteran</span>
+    </div>
+    <span class="th-stat-card__label">Days in Portfolio</span>
+    <span class="th-stat-card__value">{{ daysInPortfolio() }}</span>
+  </div>
+</div>
+
+<!-- Event Ledger -->
+<div class="ledger">
+  <div class="ledger__header">
+    <h2 class="ledger__title">Event Ledger</h2>
+    <button mat-button class="ledger__filter" [matMenuTriggerFor]="filterMenu">
+      <mat-icon>filter_list</mat-icon>
+      Filter: {{ activeFilterLabel() }}
+    </button>
+    <mat-menu #filterMenu="matMenu">
+      @for (opt of filterOptions; track opt.value) {
+        <button mat-menu-item (click)="activeFilter.set(opt.value)" [class.active-filter]="activeFilter() === opt.value">
+          {{ opt.label }}
+        </button>
+      }
+    </mat-menu>
+  </div>
+
+  <div class="ledger-table">
+    <div class="ledger-row ledger-row--header">
+      <span class="ledger-cell ledger-cell--date">Date</span>
+      <span class="ledger-cell ledger-cell--type">Event Type</span>
+      <span class="ledger-cell ledger-cell--party">Counterparty</span>
+      <span class="ledger-cell ledger-cell--price">Price</span>
+      <span class="ledger-cell ledger-cell--status">Status</span>
+    </div>
+
+    @for (trade of filteredTrades(); track $index) {
+      <div class="ledger-row">
+        <span class="ledger-cell ledger-cell--date">{{ trade.date }}</span>
+        <span class="ledger-cell ledger-cell--type">
+          <span class="type-badge" [class]="typeClass(trade.type)">{{ typeLabel(trade.type) }}</span>
+        </span>
+        <span class="ledger-cell ledger-cell--party">{{ trade.counterparty }}</span>
+        <span class="ledger-cell ledger-cell--price">{{ trade.price | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+        <span class="ledger-cell ledger-cell--status">
+          <span class="status-badge" [class]="statusClass(trade.status)">{{ trade.status }}</span>
+        </span>
+      </div>
+    }
+  </div>
+</div>
