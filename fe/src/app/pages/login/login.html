@@ -63,9 +63,18 @@
         <mat-icon iconPositionEnd>arrow_forward</mat-icon>
       </button>
 
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="onSignUp()"
+        class="w-full !h-12 !rounded-md !text-label-lg !font-semibold"
+      >
+        Sign Up
+      </button>
+
       <p class="text-center text-body-sm text-on-surface-variant">
         Don't have an account?
-        <a class="text-primary font-semibold cursor-pointer hover:underline">Sign Up</a>
+        <a class="text-primary font-semibold cursor-pointer hover:underline" (click)="onSignUp()">Sign Up</a>
       </p>
     </form>
 

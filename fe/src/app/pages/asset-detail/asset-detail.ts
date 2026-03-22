@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal, computed, effect } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -11,30 +11,6 @@ import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { Pet } from '../../models/domain';
 import { ListForSaleDialog, ListForSaleDialogData } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
-
-const PET_NAMES: Record<string, string> = {
-  'pet-a1': 'Max',
-  'pet-a2': 'Luna',
-  'pet-a3': 'Bubbles',
-  'pet-b1': 'Miso',
-  'pet-b2': 'Rio',
-  'pet-c1': 'Snoopy',
-  'pet-c2': 'Cleo',
-  'pet-c3': 'Kiwi',
-  'pet-c4': 'Finn',
-};
-
-const BREED_LABELS: Record<string, string> = {
-  Labrador: 'Golden Labrador Retriever',
-  Poodle: 'Standard Poodle',
-  Goldfish: 'Common Goldfish',
-  Siamese: 'Siamese Cat',
-  Macaw: 'Blue-and-Gold Macaw',
-  Beagle: 'Beagle Hound',
-  Bengal: 'Bengal Cat',
-  Parakeet: 'Green Parakeet',
-  Betta: 'Siamese Fighting Fish',
-};
 
 @Component({
   selector: 'app-asset-detail',
@@ -54,8 +30,8 @@ export class AssetDetail implements OnInit {
   isListed = signal(false);
   unlistedPets = signal<Pet[]>([]);
 
-  petName = computed(() => PET_NAMES[this.pet()?.id ?? ''] ?? 'Pet');
-  breedLabel = computed(() => BREED_LABELS[this.pet()?.breedName ?? ''] ?? this.pet()?.breedName ?? '');
+  petName = computed(() => this.pet()?.name ?? 'Pet');
+  breedLabel = computed(() => this.pet()?.breedName ?? '');
 
   healthFactor = computed(() => {
     const p = this.pet();
@@ -80,20 +56,24 @@ export class AssetDetail implements OnInit {
     private socket: SocketService,
     private dialog: MatDialog,
     private destroyRef: DestroyRef,
-  ) {}
+  ) {
+    effect(() => {
+      const petId = this.route.snapshot.paramMap.get('id');
+      const portfolio = this.auth.portfolio();
+      if (portfolio && petId) {
+        const found = portfolio.pets.find((p) => p.id === petId);
+        if (found) this.pet.set(found);
+        const listedIds = new Set(portfolio.listings.map((l) => l.petId));
+        this.isListed.set(listedIds.has(petId));
+        this.unlistedPets.set(portfolio.pets.filter((p) => !listedIds.has(p.id)));
+      }
+    });
+  }
 
   ngOnInit(): void {
     const user = this.auth.user();
     const petId = this.route.snapshot.paramMap.get('id');
     if (!user || !petId) return;
-
-    this.api.getTraderPortfolio(user.id).subscribe((portfolio) => {
-      const found = portfolio.pets.find((p) => p.id === petId);
-      if (found) this.pet.set(found);
-      const listedIds = new Set(portfolio.listings.map((l) => l.petId));
-      this.isListed.set(listedIds.has(petId));
-      this.unlistedPets.set(portfolio.pets.filter((p) => !listedIds.has(p.id)));
-    });
 
     this.socket
       .onPetStatsUpdate()

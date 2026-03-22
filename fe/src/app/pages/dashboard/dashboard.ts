@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal, computed, effect } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -11,7 +11,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
-import { Pet, Listing, Bid, Notification } from '../../models/domain';
+import { Pet, Listing, Bid, Notification as DomainNotification, HistoryEvent } from '../../models/domain';
+import { PetStatsUpdateEvent, ListingUpdateEvent, ListingRemovedEvent, NotificationEvent } from '../../models/socket-events';
 import { ListForSaleDialog, ListForSaleDialogData } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
 import { AcceptBidDialog, AcceptBidDialogData } from '../../shared/accept-bid-dialog/accept-bid-dialog';
 
@@ -38,42 +39,8 @@ export class Dashboard implements OnInit {
   pets = signal<Pet[]>([]);
   listings = signal<Listing[]>([]);
   bids = signal<Bid[]>([]);
-  notifications = signal<Notification[]>([]);
-  marketEvents = signal<Notification[]>([
-    {
-      id: 'market-1',
-      traderId: '',
-      type: 'pet_sold',
-      message: '<b>Trader C</b> listed a <b>Bengal</b> for <b>$85</b>',
-      petBreedName: 'Bengal',
-      amount: 85,
-      counterpartyName: 'Charlie',
-      read: false,
-      createdAt: '2026-03-21T10:15:00Z',
-    },
-    {
-      id: 'market-2',
-      traderId: '',
-      type: 'pet_sold',
-      message: 'New Supply: <b>10 Labrador</b> pups available for minting',
-      petBreedName: 'Labrador',
-      amount: null,
-      counterpartyName: null,
-      read: false,
-      createdAt: '2026-03-21T09:00:00Z',
-    },
-    {
-      id: 'market-3',
-      traderId: '',
-      type: 'pet_sold',
-      message: '<b>Trader B</b> listed a <b>Macaw</b> for <b>$150</b>',
-      petBreedName: 'Macaw',
-      amount: 150,
-      counterpartyName: 'Bob',
-      read: true,
-      createdAt: '2026-03-21T08:30:00Z',
-    },
-  ]);
+  notifications = signal<DomainNotification[]>([]);
+  marketEvents = signal<HistoryEvent[]>([]);
 
   private traderId = '';
 
@@ -83,7 +50,48 @@ export class Dashboard implements OnInit {
     private socket: SocketService,
     private dialog: MatDialog,
     private destroyRef: DestroyRef,
-  ) {}
+  ) {
+    // Sync notifications from AuthService
+    effect(() => {
+      this.notifications.set(this.auth.notifications());
+    });
+
+    effect(() => {
+      const p = this.auth.portfolio();
+      if (p) {
+        this.availableCash.set(p.availableCash);
+        this.lockedCash.set(p.lockedCash);
+        this.totalPortfolioValue.set(p.totalPortfolioValue);
+        this.pets.set(p.pets);
+        this.listings.set(p.listings);
+        this.bids.set(p.bids);
+      }
+    });
+
+    // Real-time listing updates
+    this.socket
+      .onListingUpdate()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event: ListingUpdateEvent) => {
+        const l = event.listing;
+        this.listings.update((list) => {
+          const idx = list.findIndex((item) => item.id === l.id);
+          if (idx > -1) {
+            const newList = [...list];
+            newList[idx] = l;
+            return newList;
+          }
+          return [l, ...list];
+        });
+      });
+
+    this.socket
+      .onListingRemoved()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event: ListingRemovedEvent) => {
+        this.listings.update((list) => list.filter((l) => l.id !== event.listingId));
+      });
+  }
 
   ngOnInit(): void {
     const user = this.auth.user();
@@ -91,22 +99,13 @@ export class Dashboard implements OnInit {
     this.traderId = user.id;
     this.traderName.set(user.name);
 
-    this.api.getTraderPortfolio(this.traderId).subscribe((p) => {
-      this.availableCash.set(p.availableCash);
-      this.lockedCash.set(p.lockedCash);
-      this.totalPortfolioValue.set(p.totalPortfolioValue);
-      this.pets.set(p.pets);
-      this.listings.set(p.listings);
-      this.bids.set(p.bids);
-    });
-
-    this.api.getNotifications(this.traderId).subscribe((n) => this.notifications.set(n));
+    this.api.getMarketHistory().subscribe((h) => this.marketEvents.set(h));
 
     // Real-time pet stats
     this.socket
       .onPetStatsUpdate()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((event) => {
+      .subscribe((event: PetStatsUpdateEvent) => {
         this.pets.update((pets) =>
           pets.map((pet) => {
             const tick = event.pets.find((p) => p.id === pet.id);
@@ -114,17 +113,15 @@ export class Dashboard implements OnInit {
           }),
         );
         const petsValue = this.pets().reduce((s, p) => s + p.intrinsicValue, 0);
-        this.totalPortfolioValue.set(this.availableCash() + this.lockedCash() + petsValue);
+        this.totalPortfolioValue.set(+(this.availableCash() + this.lockedCash() + petsValue).toFixed(2));
       });
 
     // Real-time notifications
     this.socket
       .onNotification()
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((e) => {
-        if (e.notification.traderId === this.traderId) {
-          this.notifications.update((list) => [e.notification, ...list]);
-        }
+      .subscribe((e: NotificationEvent) => {
+        this.auth.addNotification(e.notification);
       });
   }
 

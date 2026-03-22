@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal, computed, effect } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -10,22 +10,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { Pet, PetType } from '../../models/domain';
-
-const PET_NAMES: Record<string, string> = {
-  'pet-a1': 'Max',
-  'pet-a2': 'Luna',
-  'pet-a3': 'Bubbles',
-  'pet-b1': 'Miso',
-  'pet-b2': 'Rio',
-  'pet-c1': 'Snoopy',
-  'pet-c2': 'Cleo',
-  'pet-c3': 'Kiwi',
-  'pet-c4': 'Finn',
-};
+import { ListForSaleDialog, ListForSaleDialogData, ListForSaleDialogResult } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
 
 const TYPE_ICONS: Record<string, string> = {
   Dog: '🐕',
@@ -74,7 +64,7 @@ export class Assets implements OnInit {
       result = result.filter(
         (p) =>
           p.breedName.toLowerCase().includes(q) ||
-          this.petName(p.id).toLowerCase().includes(q),
+          p.name.toLowerCase().includes(q),
       );
     }
     const type = this.typeFilter();
@@ -100,8 +90,20 @@ export class Assets implements OnInit {
     private api: ApiService,
     private auth: AuthService,
     private socket: SocketService,
+    private dialog: MatDialog,
     private destroyRef: DestroyRef,
-  ) {}
+  ) {
+    effect(() => {
+      const p = this.auth.portfolio();
+      if (p) {
+        this.pets.set(p.pets);
+        this.listedPetIds.set(new Set(p.listings.map((l) => l.petId)));
+        this.bidPetIds.set(
+          new Set(p.bids.filter((b) => b.status === 'active').map((b) => b.petId)),
+        );
+      }
+    });
+  }
 
   ngOnInit(): void {
     const user = this.auth.user();
@@ -109,14 +111,7 @@ export class Assets implements OnInit {
     this.traderId = user.id;
     this.traderName.set(user.name);
 
-    this.api.getTraderPortfolio(this.traderId).subscribe((p) => {
-      this.pets.set(p.pets);
-      this.listedPetIds.set(new Set(p.listings.map((l) => l.petId)));
-      this.bidPetIds.set(
-        new Set(p.bids.filter((b) => b.status === 'active').map((b) => b.petId)),
-      );
-    });
-
+    // Real-time pet stats
     this.socket
       .onPetStatsUpdate()
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -128,10 +123,21 @@ export class Assets implements OnInit {
           }),
         );
       });
-  }
 
-  petName(id: string): string {
-    return PET_NAMES[id] ?? 'Pet';
+    // Real-time listing/bid status updates
+    this.socket
+      .onListingUpdate()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.auth.refreshProfile();
+      });
+
+    this.socket
+      .onListingRemoved()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.auth.refreshProfile();
+      });
   }
 
   typeIcon(type: string): string {
@@ -142,6 +148,22 @@ export class Assets implements OnInit {
     if (health > 70) return 'primary';
     if (health > 40) return 'accent';
     return 'warn';
+  }
+
+  openCreateListing(pet?: Pet): void {
+    const unlisted = this.pets().filter((p) => !this.listedPetIds().has(p.id));
+    const dialogRef = this.dialog.open(ListForSaleDialog, {
+      data: { pet: pet ?? null, pets: unlisted } as ListForSaleDialogData,
+      width: '440px',
+    });
+
+    dialogRef.afterClosed().subscribe((result: ListForSaleDialogResult | undefined) => {
+      if (result) {
+        this.api.createListing(result.petId, result.askingPrice).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      }
+    });
   }
 
   petStatus(petId: string): 'listed' | 'bid' | 'inventory' {

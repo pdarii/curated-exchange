@@ -58,21 +58,8 @@ export class ListForSaleDialog {
     this.askingPrice = this.selectedPet?.intrinsicValue ?? 0;
   }
 
-  private readonly PET_NAMES: Record<string, string> = {
-    'pet-a1': 'Max',
-    'pet-a2': 'Luna',
-    'pet-a3': 'Bubbles',
-    'pet-b1': 'Miso',
-    'pet-b2': 'Rio',
-    'pet-c1': 'Snoopy',
-    'pet-c2': 'Cleo',
-    'pet-c3': 'Kiwi',
-    'pet-c4': 'Finn',
-  };
-
   petLabel(pet: Pet): string {
-    const name = this.PET_NAMES[pet.id] ?? pet.breedName;
-    return `${name} (${pet.breedName})`;
+    return `${pet.name} (${pet.breedName})`;
   }
 
   cancel(): void {

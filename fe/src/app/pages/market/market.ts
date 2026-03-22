@@ -1,7 +1,8 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, effect, DestroyRef } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,11 +12,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
-import { Pet, PetType, Listing, Breed } from '../../models/domain';
-import { MOCK_BREEDS } from '../../services/mock-data';
-import { ListForSaleDialog, ListForSaleDialogData } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
-import { PlaceBidDialog, PlaceBidDialogData } from '../../shared/place-bid-dialog/place-bid-dialog';
-import { PurchasePetDialog, PurchasePetDialogData } from '../../shared/purchase-pet-dialog/purchase-pet-dialog';
+import { SocketService } from '../../services/socket.service';
+import { Pet, PetType, Breed } from '../../models/domain';
+import { ListForSaleDialog, ListForSaleDialogData, ListForSaleDialogResult } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
+import { PlaceBidDialog, PlaceBidDialogData, PlaceBidDialogResult } from '../../shared/place-bid-dialog/place-bid-dialog';
+import { PurchasePetDialog, PurchasePetDialogData, PurchasePetDialogResult } from '../../shared/purchase-pet-dialog/purchase-pet-dialog';
+import { PetStatsUpdateEvent, ListingUpdateEvent, ListingRemovedEvent } from '../../models/socket-events';
 
 interface MarketListing {
   id: string;
@@ -95,17 +97,83 @@ export class Market implements OnInit {
   constructor(
     private api: ApiService,
     private auth: AuthService,
+    private socket: SocketService,
     private dialog: MatDialog,
-  ) {}
+    private destroyRef: DestroyRef,
+  ) {
+    effect(() => {
+      const p = this.auth.portfolio();
+      if (p) {
+        this.myPets.set(p.pets);
+        this.myListedPetIds.set(new Set(p.listings.map((l) => l.petId)));
+        this.myAvailableCash.set(p.availableCash);
+        const bidMap = new Map<string, number>();
+        for (const bid of p.bids) {
+          if (bid.status === 'active') {
+            bidMap.set(bid.listingId, bid.amount);
+          }
+        }
+        this.myBidsByListing.set(bidMap);
+      }
+    });
+
+    // Real-time pet updates (for intrinsic value and health)
+    this.socket
+      .onPetStatsUpdate()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event: PetStatsUpdateEvent) => {
+        this.listings.update((list) =>
+          list.map((l) => {
+            const tick = event.pets.find((p) => p.id === l.petId);
+            return tick ? { ...l, ...tick } : l;
+          }),
+        );
+      });
+
+    // Real-time listing updates
+    this.socket
+      .onListingUpdate()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event: ListingUpdateEvent) => {
+        const l = event.listing;
+        this.listings.update((list) => {
+          const idx = list.findIndex((item) => item.id === l.id);
+          const mapped: MarketListing = {
+            id: l.id,
+            petBreed: l.pet.breedName,
+            petType: l.pet.type,
+            seller: l.sellerName,
+            askingPrice: l.askingPrice,
+            intrinsicValue: l.pet.intrinsicValue,
+            health: l.pet.health,
+            age: l.pet.age,
+            petId: l.petId,
+          };
+          if (idx > -1) {
+            const newList = [...list];
+            newList[idx] = mapped;
+            return newList;
+          }
+          return [mapped, ...list];
+        });
+      });
+
+    this.socket
+      .onListingRemoved()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event: ListingRemovedEvent) => {
+        this.listings.update((list) => list.filter((l) => l.id !== event.listingId));
+      });
+  }
 
   ngOnInit(): void {
     const user = this.auth.user();
     if (!user) return;
     this.traderId = user.id;
 
-    // Load secondary market listings + mock extras
+    // Load secondary market listings
     this.api.getListings().subscribe((listings) => {
-      const apiListings: MarketListing[] = listings.map((l) => ({
+      this.listings.set(listings.map((l) => ({
         id: l.id,
         petBreed: l.pet.breedName,
         petType: l.pet.type,
@@ -115,51 +183,17 @@ export class Market implements OnInit {
         health: l.pet.health,
         age: l.pet.age,
         petId: l.petId,
-      }));
-
-      this.listings.set([
-        ...apiListings,
-        { id: 'ml-1', petBreed: 'Pug', petType: 'Dog', seller: 'Trader B', askingPrice: 2450, intrinsicValue: 2100, health: 94, age: 2.4, petId: 'ml-p1' },
-        { id: 'ml-2', petBreed: 'Dachshund', petType: 'Dog', seller: 'Trader C', askingPrice: 1800, intrinsicValue: 1920, health: 88, age: 1.1, petId: 'ml-p2' },
-        { id: 'ml-3', petBreed: 'Tabby Cat', petType: 'Cat', seller: 'Trader B', askingPrice: 600, intrinsicValue: 580, health: 72, age: 4.3, petId: 'ml-p3' },
-        { id: 'ml-4', petBreed: 'G. Retriever', petType: 'Dog', seller: 'Trader D', askingPrice: 2700, intrinsicValue: 3450, health: 98, age: 0.8, petId: 'ml-p4' },
-        { id: 'ml-5', petBreed: 'Persian', petType: 'Cat', seller: 'Trader C', askingPrice: 950, intrinsicValue: 820, health: 91, age: 1.5, petId: 'ml-p5' },
-        { id: 'ml-6', petBreed: 'Cockatiel', petType: 'Bird', seller: 'Trader B', askingPrice: 280, intrinsicValue: 245, health: 86, age: 3.2, petId: 'ml-p6' },
-        { id: 'ml-7', petBreed: 'Macaw', petType: 'Bird', seller: 'Trader D', askingPrice: 4200, intrinsicValue: 3800, health: 97, age: 5.1, petId: 'ml-p7' },
-        { id: 'ml-8', petBreed: 'Clownfish', petType: 'Fish', seller: 'Trader C', askingPrice: 85, intrinsicValue: 72, health: 79, age: 1.8, petId: 'ml-p8' },
-        { id: 'ml-9', petBreed: 'Bulldog', petType: 'Dog', seller: 'Trader B', askingPrice: 1100, intrinsicValue: 960, health: 65, age: 3.7, petId: 'ml-p9' },
-        { id: 'ml-10', petBreed: 'Maine Coon', petType: 'Cat', seller: 'Trader D', askingPrice: 1350, intrinsicValue: 1200, health: 93, age: 2.0, petId: 'ml-p10' },
-        { id: 'ml-11', petBreed: 'Betta', petType: 'Fish', seller: 'Trader B', askingPrice: 45, intrinsicValue: 38, health: 82, age: 0.9, petId: 'ml-p11' },
-        { id: 'ml-12', petBreed: 'Canary', petType: 'Bird', seller: 'Trader C', askingPrice: 160, intrinsicValue: 140, health: 90, age: 2.5, petId: 'ml-p12' },
-        { id: 'ml-13', petBreed: 'Sphynx', petType: 'Cat', seller: 'Trader D', askingPrice: 780, intrinsicValue: 650, health: 77, age: 3.1, petId: 'ml-p13' },
-        { id: 'ml-14', petBreed: 'Pit Bull', petType: 'Dog', seller: 'Trader C', askingPrice: 900, intrinsicValue: 750, health: 84, age: 2.8, petId: 'ml-p14' },
-        { id: 'ml-15', petBreed: 'Angelfish', petType: 'Fish', seller: 'Trader B', askingPrice: 55, intrinsicValue: 48, health: 88, age: 1.2, petId: 'ml-p15' },
-        { id: 'ml-16', petBreed: 'Lovebird', petType: 'Bird', seller: 'Trader D', askingPrice: 120, intrinsicValue: 95, health: 92, age: 4.0, petId: 'ml-p16' },
-      ]);
-    });
-
-    // Load user's pets and bids for dialogs
-    this.api.getTraderPortfolio(this.traderId).subscribe((p) => {
-      this.myPets.set(p.pets);
-      this.myListedPetIds.set(new Set(p.listings.map((l) => l.petId)));
-      this.myAvailableCash.set(p.availableCash);
-      const bidMap = new Map<string, number>();
-      for (const bid of p.bids) {
-        if (bid.status === 'active') {
-          bidMap.set(bid.listingId, bid.amount);
-        }
-      }
-      this.myBidsByListing.set(bidMap);
+      })));
     });
 
     // Retail supply
-    const featured = ['Labrador', 'Siamese', 'Beagle', 'Poodle'];
-    this.retailCards.set(
-      featured
-        .map((name) => MOCK_BREEDS.find((b) => b.name === name))
-        .filter((b): b is Breed => !!b)
-        .map((b) => ({ breed: b, price: b.basePrice, supply: Math.floor(Math.random() * 10) + 1 })),
-    );
+    this.api.getRetailItems().subscribe((items) => {
+      this.retailCards.set(items.slice(0, 4).map(item => ({
+        breed: item.breed,
+        price: item.breed.basePrice,
+        supply: item.supplyRemaining
+      })));
+    });
   }
 
   setTypeFilter(value: PetType | ''): void {
@@ -201,15 +235,23 @@ export class Market implements OnInit {
 
   openCreateListing(): void {
     const unlisted = this.myPets().filter((p) => !this.myListedPetIds().has(p.id));
-    this.dialog.open(ListForSaleDialog, {
+    const dialogRef = this.dialog.open(ListForSaleDialog, {
       data: { pet: null, pets: unlisted } as ListForSaleDialogData,
       width: '440px',
+    });
+
+    dialogRef.afterClosed().subscribe((result: ListForSaleDialogResult | undefined) => {
+      if (result) {
+        this.api.createListing(result.petId, result.askingPrice).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      }
     });
   }
 
   openPlaceBid(listing: MarketListing): void {
     const previousBid = this.myBidsByListing().get(listing.id);
-    this.dialog.open(PlaceBidDialog, {
+    const dialogRef = this.dialog.open(PlaceBidDialog, {
       data: {
         petBreed: listing.petBreed,
         seller: listing.seller,
@@ -222,16 +264,32 @@ export class Market implements OnInit {
       } as PlaceBidDialogData,
       width: '440px',
     });
+
+    dialogRef.afterClosed().subscribe((result: PlaceBidDialogResult | undefined) => {
+      if (result) {
+        this.api.placeBid(result.listingId, result.amount).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      }
+    });
   }
 
   openBuyRetail(item: RetailCard): void {
-    this.dialog.open(PurchasePetDialog, {
+    const dialogRef = this.dialog.open(PurchasePetDialog, {
       data: {
         breed: item.breed,
         supply: item.supply,
         availableCash: this.myAvailableCash(),
       } as PurchasePetDialogData,
       width: '420px',
+    });
+
+    dialogRef.afterClosed().subscribe((result: PurchasePetDialogResult | undefined) => {
+      if (result) {
+        this.api.buyNewPet(result.breedName, result.quantity).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      }
     });
   }
 }

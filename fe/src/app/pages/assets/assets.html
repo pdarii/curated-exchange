@@ -67,7 +67,7 @@
     <div class="assets-row" [routerLink]="['/assets', pet.id]" style="cursor: pointer">
       <span class="assets-cell assets-cell--name">
         <span class="assets-cell__icon">{{ typeIcon(pet.type) }}</span>
-        <b>{{ petName(pet.id) }}</b>
+        <b>{{ pet.name }}</b>
       </span>
       <span class="assets-cell assets-cell--breed">{{ pet.breedName }}</span>
       <span class="assets-cell assets-cell--type">{{ pet.type }}</span>
@@ -102,7 +102,7 @@
             <mat-icon>visibility</mat-icon>
             <span>View Details</span>
           </button>
-          <button mat-menu-item>
+          <button mat-menu-item (click)="openCreateListing(pet)" [disabled]="petStatus(pet.id) !== 'inventory'">
             <mat-icon>sell</mat-icon>
             <span>List for Sale</span>
           </button>

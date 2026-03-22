@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, signal, effect } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { ApiService } from '../../services/api.service';
-import { Notification, Listing } from '../../models/domain';
+import { Notification as DomainNotification, Listing } from '../../models/domain';
 import { AcceptBidDialog, AcceptBidDialogData } from '../../shared/accept-bid-dialog/accept-bid-dialog';
 
 @Component({
@@ -29,7 +29,7 @@ import { AcceptBidDialog, AcceptBidDialogData } from '../../shared/accept-bid-di
 export class Shell implements OnInit {
   unreadCount = signal(0);
   feedOpen = signal(false);
-  notifications = signal<Notification[]>([]);
+  notifications = signal<DomainNotification[]>([]);
 
   readonly navLinks = [
     { label: 'Dashboard', route: '/dashboard' },
@@ -45,33 +45,29 @@ export class Shell implements OnInit {
     private api: ApiService,
     private dialog: MatDialog,
     private destroyRef: DestroyRef,
-  ) {}
+  ) {
+    // Sync notifications from AuthService
+    effect(() => {
+      const prevCount = this.notifications().length;
+      const newList = this.auth.notifications();
+      this.notifications.set(newList);
+
+      // If feed is closed and list grew, increment badge
+      if (!this.feedOpen() && newList.length > prevCount && prevCount > 0) {
+        this.unreadCount.update(n => n + (newList.length - prevCount));
+      }
+    });
+
+    // Handle listings via portfolio signal
+    effect(() => {
+      const p = this.auth.portfolio();
+      if (p) {
+        this.listings.set(p.listings);
+      }
+    });
+  }
 
   ngOnInit(): void {
-    const user = this.auth.user();
-    if (!user) return;
-
-    this.socket.connect(user.id);
-
-    // Load initial notifications + listings
-    this.api.getNotifications(user.id).subscribe((notifs) => {
-      this.notifications.set(notifs);
-      this.unreadCount.set(notifs.filter((n) => !n.read).length);
-    });
-
-    this.api.getTraderPortfolio(user.id).subscribe((p) => {
-      this.listings.set(p.listings);
-    });
-
-    // Real-time notifications — only for signed-in user
-    this.socket
-      .onNotification()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((event) => {
-        if (event.notification.traderId !== user.id) return;
-        this.notifications.update((list) => [event.notification, ...list]);
-        this.unreadCount.update((n) => n + 1);
-      });
   }
 
   toggleFeed(): void {
@@ -91,6 +87,7 @@ export class Shell implements OnInit {
   }
 
   timeAgo(dateStr: string): string {
+    if (!dateStr) return '';
     const mins = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60_000);
     if (mins < 1) return 'just now';
     if (mins < 60) return `${mins} min ago`;
@@ -123,7 +120,7 @@ export class Shell implements OnInit {
     return map[type] ?? '#727783';
   }
 
-  onNotifClick(n: Notification): void {
+  onNotifClick(n: DomainNotification): void {
     if (n.type !== 'bid_received') return;
 
     // Find the listing for this pet
