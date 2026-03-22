@@ -23,13 +23,35 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Pets Trading System Backend implemented with NestJS, Firebase, and WebSockets.
+
+## Features
+- **Pet Lifecycle**: Real-time aging, health fluctuation, and intrinsic value calculation.
+- **Market Mechanics**: Buying from supply, listing on secondary market, and bidding system with fund locking/refunding.
+- **Trader Portfolios**: Automatic calculation of total portfolio value (cash + pet values).
+- **Real-time Updates**: WebSocket-based notifications and pet status updates.
+
+## Prerequisites
+- Node.js (v18+)
+- Firebase Project with Firestore enabled
+- `service-account.json` in the `be/` directory
 
 ## Project setup
 
 ```bash
 $ npm install
 ```
+
+## Database Seeding
+The application uses a static pet dictionary from `src/config/pet-dictionary.json` for breeds. Initial traders and pets are NOT automatically seeded. Users must register via the frontend.
+
+## Authentication & Authorization
+The system uses **Firebase Authentication**.
+- **Signup**: New users can register via the frontend. Upon signup, a trader profile is created in Firestore with a base value of **1000 cash**.
+- **Roles**:
+  - `trader`: Default role for all new users.
+  - `admin`: Granted to the user with the email `admin@pets.com` during registration.
+- **Security**: All market transactions (buying, listing, bidding) and private data (notifications, personal portfolio) are protected by an `AuthGuard` that verifies the Firebase ID token.
 
 ## Compile and run the project
 
@@ -49,12 +71,6 @@ $ npm run start:prod
 ```bash
 # unit tests
 $ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
 ```
 
 ## Deployment

@@ -5,6 +5,7 @@ export type PetType = 'Dog' | 'Cat' | 'Bird' | 'Fish';
 
 export interface Breed {
   name: string;
+  displayName: string;
   type: PetType;
   lifespan: number;
   desirability: number;
@@ -17,6 +18,7 @@ export interface Breed {
 // ---------------------------------------------------------------------------
 export interface Pet {
   id: string;
+  name: string;
   breedName: string;
   type: PetType;
   ownerId: string;
@@ -71,9 +73,41 @@ export interface Bid {
 // ---------------------------------------------------------------------------
 // Trader
 // ---------------------------------------------------------------------------
+export interface Trader {
+  id: string;
+  name: string;
+  role: 'trader' | 'admin';
+  availableCash: number;
+  lockedCash: number;
+  totalPortfolioValue: number;
+}
+
+export type HistoryType =
+  | 'minted'
+  | 'listed'
+  | 'bid'
+  | 'sold'
+  | 'outbid'
+  | 'rejected'
+  | 'withdrawn'
+  | 'purchased';
+
+export interface HistoryEvent {
+  id: string;
+  petId: string;
+  petName?: string;
+  type: HistoryType;
+  message: string;
+  amount?: number;
+  counterpartyId?: string;
+  counterpartyName?: string;
+  createdAt: string;
+}
+
 export interface TraderPortfolio {
-  traderId: string;
-  traderName: string;
+  id: string;
+  name: string;
+  role: 'trader' | 'admin';
   availableCash: number;
   lockedCash: number;
   totalPortfolioValue: number;

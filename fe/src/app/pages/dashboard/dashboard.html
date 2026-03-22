@@ -134,12 +134,12 @@
       </div>
 
       <div class="sidebar-feed">
-        @for (n of marketEvents(); track n.id) {
-          <div class="feed-item" [class.feed-item--unread]="!n.read">
+        @for (e of marketEvents(); track e.id) {
+          <div class="feed-item">
             <span class="feed-dot"></span>
             <div class="feed-item__content">
-              <p class="feed-item__text" [innerHTML]="n.message"></p>
-              <span class="feed-item__time">{{ timeAgo(n.createdAt) }}</span>
+              <p class="feed-item__text" [innerHTML]="e.message"></p>
+              <span class="feed-item__time">{{ timeAgo(e.createdAt) }}</span>
             </div>
           </div>
         }

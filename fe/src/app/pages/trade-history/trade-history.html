@@ -66,16 +66,16 @@
       <span class="ledger-cell ledger-cell--status">Status</span>
     </div>
 
-    @for (trade of filteredTrades(); track $index) {
+    @for (trade of filteredTrades(); track trade.id) {
       <div class="ledger-row">
-        <span class="ledger-cell ledger-cell--date">{{ trade.date }}</span>
+        <span class="ledger-cell ledger-cell--date">{{ trade.createdAt | date: 'MMM dd, yyyy' }}</span>
         <span class="ledger-cell ledger-cell--type">
           <span class="type-badge" [class]="typeClass(trade.type)">{{ typeLabel(trade.type) }}</span>
         </span>
-        <span class="ledger-cell ledger-cell--party">{{ trade.counterparty }}</span>
-        <span class="ledger-cell ledger-cell--price">{{ trade.price | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+        <span class="ledger-cell ledger-cell--party">{{ trade.counterpartyName || 'System' }}</span>
+        <span class="ledger-cell ledger-cell--price">{{ (trade.amount || 0) | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
         <span class="ledger-cell ledger-cell--status">
-          <span class="status-badge" [class]="statusClass(trade.status)">{{ trade.status }}</span>
+          <span class="status-badge status-badge--teal">Completed</span>
         </span>
       </div>
     }

@@ -1,0 +1,22 @@
+[
+  { "name": "Labrador", "type": "Dog", "lifespan": 12, "desirability": 8, "maintenance": 5, "basePrice": 100 },
+  { "name": "Beagle", "type": "Dog", "lifespan": 13, "desirability": 7, "maintenance": 4, "basePrice": 90 },
+  { "name": "Poodle", "type": "Dog", "lifespan": 14, "desirability": 9, "maintenance": 6, "basePrice": 110 },
+  { "name": "Bulldog", "type": "Dog", "lifespan": 10, "desirability": 6, "maintenance": 7, "basePrice": 80 },
+  { "name": "Pit Bull", "type": "Dog", "lifespan": 11, "desirability": 5, "maintenance": 5, "basePrice": 70 },
+  { "name": "Siamese", "type": "Cat", "lifespan": 15, "desirability": 9, "maintenance": 4, "basePrice": 90 },
+  { "name": "Persian", "type": "Cat", "lifespan": 14, "desirability": 8, "maintenance": 6, "basePrice": 85 },
+  { "name": "Maine Coon", "type": "Cat", "lifespan": 16, "desirability": 7, "maintenance": 5, "basePrice": 80 },
+  { "name": "Bengal", "type": "Cat", "lifespan": 12, "desirability": 6, "maintenance": 5, "basePrice": 75 },
+  { "name": "Sphynx", "type": "Cat", "lifespan": 13, "desirability": 5, "maintenance": 7, "basePrice": 70 },
+  { "name": "Parakeet", "type": "Bird", "lifespan": 8, "desirability": 7, "maintenance": 3, "basePrice": 25 },
+  { "name": "Canary", "type": "Bird", "lifespan": 10, "desirability": 6, "maintenance": 2, "basePrice": 20 },
+  { "name": "Cockatiel", "type": "Bird", "lifespan": 12, "desirability": 8, "maintenance": 3, "basePrice": 30 },
+  { "name": "Macaw", "type": "Bird", "lifespan": 50, "desirability": 9, "maintenance": 8, "basePrice": 120 },
+  { "name": "Lovebird", "type": "Bird", "lifespan": 15, "desirability": 5, "maintenance": 3, "basePrice": 15 },
+  { "name": "Goldfish", "type": "Fish", "lifespan": 10, "desirability": 5, "maintenance": 2, "basePrice": 5 },
+  { "name": "Betta", "type": "Fish", "lifespan": 5, "desirability": 6, "maintenance": 1, "basePrice": 6 },
+  { "name": "Guppy", "type": "Fish", "lifespan": 3, "desirability": 4, "maintenance": 1, "basePrice": 4 },
+  { "name": "Angelfish", "type": "Fish", "lifespan": 8, "desirability": 7, "maintenance": 2, "basePrice": 8 },
+  { "name": "Clownfish", "type": "Fish", "lifespan": 6, "desirability": 8, "maintenance": 3, "basePrice": 10 }
+]

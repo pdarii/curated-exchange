@@ -33,15 +33,30 @@ export class Login {
     private router: Router,
   ) {}
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.errorMessage.set('');
-    if (this.auth.login(this.username, this.password)) {
-      const user = this.auth.user();
-      this.router.navigate([user?.role === 'admin' ? '/admin' : '/']);
-    } else {
-      this.errorMessage.set(
-        'Invalid credentials. Try: alice, bob, charlie, or admin',
-      );
+    try {
+      await this.auth.login(this.username, this.password);
+
+      // We need to wait for the profile to be fetched before we can check the role
+      // Instead of manual waiting, we can navigate to '/' and let the guards handle it
+      // or we can wait for authInitialized.
+      this.router.navigate(['/']);
+    } catch (err: any) {
+      console.error('Login.onSubmit: Login failed', err);
+      this.errorMessage.set(err.message || 'Login failed');
+    }
+  }
+
+  async onSignUp(): Promise<void> {
+    this.errorMessage.set('');
+    try {
+      // For simplicity in this UI, we use username as display name
+      await this.auth.signUp(this.username, this.password, this.username);
+      this.router.navigate(['/']);
+    } catch (err: any) {
+      console.error('Login.onSignUp: Sign up failed', err);
+      this.errorMessage.set(err.message || 'Sign up failed');
     }
   }
 }

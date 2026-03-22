@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, Signal } from '@angular/core';
+import { Component, OnInit, signal, computed, Signal, effect } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,8 +11,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Breed, PetType } from '../../models/domain';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
-import { MOCK_BREEDS } from '../../services/mock-data';
-import { PurchasePetDialog, PurchasePetDialogData } from '../../shared/purchase-pet-dialog/purchase-pet-dialog';
+import { PurchasePetDialog, PurchasePetDialogData, PurchasePetDialogResult } from '../../shared/purchase-pet-dialog/purchase-pet-dialog';
 
 interface CatalogItem {
   breed: Breed;
@@ -93,22 +92,22 @@ export class Catalog implements OnInit {
     private dialog: MatDialog,
     private auth: AuthService,
     private api: ApiService,
-  ) {}
+  ) {
+    effect(() => {
+      const p = this.auth.portfolio();
+      if (p) {
+        this.availableCash = p.availableCash;
+      }
+    });
+  }
 
   ngOnInit(): void {
-    const user = this.auth.user();
-    if (user) {
-      this.api.getTraderPortfolio(user.id).subscribe((p) => {
-        this.availableCash = p.availableCash;
-      });
-    }
-
-    this.items.set(
-      MOCK_BREEDS.map((breed) => ({
-        breed,
-        supply: Math.floor(Math.random() * 15) + 1,
-      })),
-    );
+    this.api.getRetailItems().subscribe((items) => {
+      this.items.set(items.map(i => ({
+        breed: i.breed,
+        supply: i.supplyRemaining
+      })));
+    });
   }
 
   setTypeFilter(value: PetType | ''): void {
@@ -186,13 +185,21 @@ export class Catalog implements OnInit {
   }
 
   openBuy(item: CatalogItem): void {
-    this.dialog.open(PurchasePetDialog, {
+    const dialogRef = this.dialog.open(PurchasePetDialog, {
       data: {
         breed: item.breed,
         supply: item.supply,
         availableCash: this.availableCash,
       } as PurchasePetDialogData,
       width: '420px',
+    });
+
+    dialogRef.afterClosed().subscribe((result: PurchasePetDialogResult | undefined) => {
+      if (result) {
+        this.api.buyNewPet(result.breedName, result.quantity).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      }
     });
   }
 }

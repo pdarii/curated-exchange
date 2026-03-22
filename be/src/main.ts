@@ -1,14 +1,31 @@
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // 1. Enable CORS so your Angular frontend can talk to this API
-  app.enableCors();
+  app.setGlobalPrefix('api');
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+    credentials: true,
+  });
 
-  // 2. Use the PORT provided by Cloud Run (default to 8080)
-  const port = process.env.PORT || 8080;
-  await app.listen(port);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  const config = new DocumentBuilder()
+    .setTitle('Pets Trading System API')
+    .setDescription('The Pets Trading System backend API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
+  await app.listen(process.env.PORT ?? 8080);
+  const url = await app.getUrl();
+  console.log(`\n----------------------------------------------------------`);
+  console.log(`🚀 Application is running on: ${url}/api`);
+  console.log(`📖 Swagger documentation: ${url}/api/docs`);
+  console.log(`----------------------------------------------------------\n`);
 }
 bootstrap();
