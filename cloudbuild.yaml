@@ -5,8 +5,9 @@ steps:
     args:
       - '-c'
       - |
-        gcloud secrets versions access latest --secret="FIREBASE_SERVICE_ACCOUNT" > ./be/service-account.json
-
+        # We use the environment variable defined below to create the file
+        echo "$$FIREBASE_JSON" > ./be/service-account.json
+    secretEnv: [ 'FIREBASE_JSON' ]
   # 1. Build Backend (NestJS) Docker Image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'europe-central2-docker.pkg.dev/angular-top/repo/backend:latest', './be']
