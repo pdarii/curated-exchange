@@ -1,13 +1,12 @@
 steps:
-  # 0. Fetch the secret and save it as a temporary file in the build workspace
-  - name: 'gcr.io/cloud-builders/gcloud'
+  # 0. Fetch the secret and save it as a JSON file
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        # We use the environment variable defined below to create the file
-        echo "$$FIREBASE_JSON" > ./be/service-account.json
-    secretEnv: [ 'FIREBASE_JSON' ]
+        gcloud secrets versions access latest --secret="FIREBASE_SERVICE_ACCOUNT" > ./be/service-account.json
+
   # 1. Build Backend (NestJS) Docker Image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'europe-central2-docker.pkg.dev/angular-top/repo/backend:latest', './be']
@@ -41,16 +40,10 @@ steps:
     args: ['run', 'build']
     dir: 'fe'
 
-  # 5. Deploy to Firebase Hosting (Reliable Method)
+  # 5. Deploy to Firebase Hosting
   - name: 'node:20'
     entrypoint: npx
-    args: ['firebase-tools', 'deploy', '--only', 'hosting', '--project', 'angular-top']
+    args: ['firebase-tools', 'deploy', '--only', 'hosting', '--token', '${_FIREBASE_TOKEN}']
 
 options:
   logging: CLOUD_LOGGING_ONLY
-
-# This ensures the secret is available to the steps above
-availableSecrets:
-  secretManager:
-    - versionName: projects/angular-top/secrets/FIREBASE_SERVICE_ACCOUNT/versions/latest
-      env: 'FIREBASE_JSON'
