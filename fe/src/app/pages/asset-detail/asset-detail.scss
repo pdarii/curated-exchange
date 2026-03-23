@@ -177,6 +177,12 @@
     background: linear-gradient(135deg, #004d99, #1565c0);
     color: #ffffff;
     flex: 1;
+
+    &:disabled {
+      background: #c2c6d4;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
   }
 
   &--outline {

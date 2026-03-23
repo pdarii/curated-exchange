@@ -31,9 +31,9 @@
       </span>
     </div>
     <div class="detail-actions">
-      <button class="btn-action btn-action--primary" (click)="openListForSale()">
+      <button class="btn-action btn-action--primary" (click)="openListForSale()" [disabled]="isListed()">
         <mat-icon>sell</mat-icon>
-        List for Sale
+        {{ isListed() ? 'Already Listed' : 'List for Sale' }}
       </button>
       <button class="btn-action btn-action--outline" [routerLink]="['/assets', pet.id, 'history']">
         <mat-icon>history</mat-icon>

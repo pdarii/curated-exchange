@@ -167,15 +167,23 @@ export class Dashboard implements OnInit {
 
   openNewListing(): void {
     const unlistedPets = this.pets().filter((p) => !this.isListed(p.id));
-    this.dialog.open(ListForSaleDialog, {
+    const dialogRef = this.dialog.open(ListForSaleDialog, {
       data: { pet: null, pets: unlistedPets } as ListForSaleDialogData,
       width: '440px',
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.api.createListing(result.petId, result.askingPrice).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      }
     });
   }
 
   openAcceptBid(listing: Listing): void {
     if (!listing.highestBid) return;
-    this.dialog.open(AcceptBidDialog, {
+    const dialogRef = this.dialog.open(AcceptBidDialog, {
       data: {
         petName: getPetName(listing.petId, listing.pet.breedName),
         petBreed: `Yellow ${listing.pet.breedName}`,
@@ -194,6 +202,19 @@ export class Dashboard implements OnInit {
         listingId: listing.id,
       } as AcceptBidDialogData,
       width: '460px',
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (!result) return;
+      if (result.action === 'accept') {
+        this.api.acceptBid(listing.highestBid!.id).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      } else if (result.action === 'reject') {
+        this.api.rejectBid(listing.highestBid!.id).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      }
     });
   }
 }

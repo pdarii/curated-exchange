@@ -105,9 +105,17 @@ export class AssetDetail implements OnInit {
   openListForSale(): void {
     const pet = this.pet();
     if (!pet) return;
-    this.dialog.open(ListForSaleDialog, {
+    const dialogRef = this.dialog.open(ListForSaleDialog, {
       data: { pet, pets: this.unlistedPets() } as ListForSaleDialogData,
       width: '440px',
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.api.createListing(result.petId, result.askingPrice).subscribe(() => {
+          this.auth.refreshProfile();
+        });
+      }
     });
   }
 }
