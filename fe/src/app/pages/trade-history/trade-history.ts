@@ -7,6 +7,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { Pet, HistoryEvent, HistoryType } from '../../models/domain';
+import { getPetName } from '../../shared/utils/pet-names';
 
 @Component({
   selector: 'app-trade-history',
@@ -58,7 +59,7 @@ export class TradeHistory implements OnInit {
         const found = portfolio.pets.find((p) => p.id === petId);
         if (found) {
           this.pet.set(found);
-          this.petName.set(found.name);
+          this.petName.set(getPetName(found.id, found.breedName));
           this.petBreed.set(found.breedName);
           this.loadHistory(petId);
         }

@@ -174,17 +174,21 @@ export class Market implements OnInit {
 
     // Load secondary market listings
     this.api.getListings().subscribe((listings) => {
-      this.listings.set(listings.map((l) => ({
-        id: l.id,
-        petBreed: l.pet.breedName,
-        petType: l.pet.type,
-        seller: l.sellerName,
-        askingPrice: l.askingPrice,
-        intrinsicValue: l.pet.intrinsicValue,
-        health: l.pet.health,
-        age: l.pet.age,
-        petId: l.petId,
-      })));
+      this.listings.set(
+        listings
+          .filter((l) => l.pet)
+          .map((l) => ({
+            id: l.id,
+            petBreed: l.pet.breedName,
+            petType: l.pet.type,
+            seller: l.sellerName,
+            askingPrice: l.askingPrice,
+            intrinsicValue: l.pet.intrinsicValue,
+            health: l.pet.health,
+            age: l.pet.age,
+            petId: l.petId,
+          })),
+      );
     });
 
     // Retail supply

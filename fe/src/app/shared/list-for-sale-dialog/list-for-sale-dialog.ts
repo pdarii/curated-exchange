@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { getPetName } from '../../shared/utils/pet-names';
 import { MatIconModule } from '@angular/material/icon';
 import { Pet } from '../../models/domain';
 
@@ -59,7 +60,7 @@ export class ListForSaleDialog {
   }
 
   petLabel(pet: Pet): string {
-    return `${pet.name} (${pet.breedName})`;
+    return `${getPetName(pet.id, pet.breedName)} (${pet.breedName})`;
   }
 
   cancel(): void {

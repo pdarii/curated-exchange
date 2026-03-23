@@ -16,6 +16,8 @@ import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { Pet, PetType } from '../../models/domain';
 import { ListForSaleDialog, ListForSaleDialogData, ListForSaleDialogResult } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
+import { getPetName } from '../../shared/utils/pet-names';
+import { getPetImage } from '../../shared/utils/pet-images';
 
 const TYPE_ICONS: Record<string, string> = {
   Dog: '🐕',
@@ -138,6 +140,14 @@ export class Assets implements OnInit {
       .subscribe(() => {
         this.auth.refreshProfile();
       });
+  }
+
+  petName(id: string, fallback: string): string {
+    return getPetName(id, fallback);
+  }
+
+  petImage(breedName: string): string {
+    return getPetImage(breedName);
   }
 
   typeIcon(type: string): string {

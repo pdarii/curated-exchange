@@ -11,6 +11,7 @@ import { SocketService } from '../../services/socket.service';
 import { ApiService } from '../../services/api.service';
 import { Notification as DomainNotification, Listing } from '../../models/domain';
 import { AcceptBidDialog, AcceptBidDialogData } from '../../shared/accept-bid-dialog/accept-bid-dialog';
+import { getPetName } from '../../shared/utils/pet-names';
 
 @Component({
   selector: 'app-shell',
@@ -129,13 +130,9 @@ export class Shell implements OnInit {
 
     this.closeFeed();
 
-    const PET_NAMES: Record<string, string> = {
-      'pet-a1': 'Max', 'pet-a2': 'Luna', 'pet-a3': 'Bubbles',
-    };
-
     this.dialog.open(AcceptBidDialog, {
       data: {
-        petName: PET_NAMES[listing.petId] ?? listing.pet.breedName,
+        petName: getPetName(listing.petId, listing.pet.breedName),
         petBreed: listing.pet.breedName,
         petHealth: listing.pet.health,
         petAge: listing.pet.age,

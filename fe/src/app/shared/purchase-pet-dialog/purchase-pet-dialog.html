@@ -8,7 +8,7 @@
 <mat-dialog-content class="purchase-content">
   <!-- Pet info card -->
   <div class="pet-info-card">
-    <div class="pet-info-card__img"></div>
+    <img class="pet-info-card__img" [src]="breedImage" [alt]="breed.name" />
     <div class="pet-info-card__details">
       <span class="pet-info-card__name">{{ breed.name }}</span>
       <span class="pet-info-card__breed">Breed: Purebred {{ breed.name }}</span>

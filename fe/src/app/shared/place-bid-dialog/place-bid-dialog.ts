@@ -6,6 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { getPetImage } from '../../shared/utils/pet-images';
 
 export interface PlaceBidDialogData {
   petBreed: string;
@@ -62,6 +63,10 @@ export class PlaceBidDialog {
     this.listingId = data.listingId;
     this.bidAmount = data.previousBid ?? 0;
     this.isUpdate = !!data.previousBid;
+  }
+
+  get petImage(): string {
+    return getPetImage(this.petBreed);
   }
 
   get insufficientFunds(): boolean {
