@@ -66,7 +66,7 @@
         <span class="p2p-cell p2p-cell--asking">{{ listing.askingPrice | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
         <span class="p2p-cell p2p-cell--intrinsic">{{ listing.intrinsicValue | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
         <span class="p2p-cell p2p-cell--health">
-          <span class="health-pill" [class]="healthPillClass(listing.health)">{{ listing.health }}%</span>
+          <span class="health-pill" [class]="healthPillClass(listing.health)">{{ listing.health | number: '1.0-0' }}%</span>
           <div class="health-bar-mini">
             <div class="health-bar-mini__fill" [class]="healthBarClass(listing.health)" [style.width.%]="listing.health"></div>
           </div>

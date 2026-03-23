@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, of, forkJoin } from 'rxjs';
+import { Observable, map, of, forkJoin, switchMap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   Breed,
@@ -75,30 +75,68 @@ export class ApiService {
   // ---------------------------------------------------------------------------
   // Secondary market — listings
   // ---------------------------------------------------------------------------
+  getTraderPortfolio(traderId: string): Observable<TraderPortfolio> {
+    return this.http.get<TraderPortfolio>(`${this.apiUrl}/traders/${traderId}`);
+  }
+
   getListings(): Observable<Listing[]> {
+    // BE returns listings without pet objects — fetch seller portfolios to enrich
     return this.http.get<any[]>(`${this.apiUrl}/market/listings`).pipe(
-      map((listings) =>
-        listings.map((l) => ({
-          ...l,
-          // BE doesn't populate pet object — build a minimal one if missing
-          pet: l.pet ?? {
-            id: l.petId,
-            name: '',
-            breedName: l.highestBid?.petBreedName ?? 'Unknown',
-            type: 'Dog' as const,
-            ownerId: l.sellerId,
-            age: 0,
-            health: 100,
-            lifespan: 10,
-            desirability: 5,
-            maintenance: 3,
-            basePrice: l.askingPrice,
-            intrinsicValue: l.askingPrice,
-            expired: false,
-          },
-        } as Listing)),
-      ),
+      switchMap((listings) => {
+        if (!listings.length) return of([]);
+
+        // Get unique seller IDs
+        const sellerIds = [...new Set(listings.map((l: any) => l.sellerId).filter(Boolean))];
+
+        if (!sellerIds.length) return of(listings.map((l: any) => this.enrichListing(l, new Map())));
+
+        // Fetch all seller portfolios to build a petId → Pet map
+        const portfolioRequests = sellerIds.map((id) =>
+          this.getTraderPortfolio(id).pipe(map((p) => p.pets || []))
+        );
+
+        return forkJoin(portfolioRequests).pipe(
+          map((petArrays) => {
+            const petMap = new Map<string, Pet>();
+            for (const pets of petArrays) {
+              for (const pet of pets) {
+                petMap.set(pet.id, pet);
+              }
+            }
+            return listings.map((l: any) => this.enrichListing(l, petMap));
+          }),
+        );
+      }),
     );
+  }
+
+  private enrichListing(l: any, petMap: Map<string, Pet>): Listing {
+    if (l.pet) return l as Listing;
+
+    const pet = petMap.get(l.petId);
+    if (pet) {
+      return { ...l, pet } as Listing;
+    }
+
+    // Fallback minimal pet
+    return {
+      ...l,
+      pet: {
+        id: l.petId,
+        name: '',
+        breedName: l.highestBid?.petBreedName ?? 'Pet',
+        type: 'Dog' as const,
+        ownerId: l.sellerId,
+        age: 0,
+        health: 100,
+        lifespan: 10,
+        desirability: 5,
+        maintenance: 3,
+        basePrice: l.askingPrice,
+        intrinsicValue: l.askingPrice,
+        expired: false,
+      },
+    } as Listing;
   }
 
   createListing(petId: string, askingPrice: number): Observable<Listing> {
