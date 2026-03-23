@@ -54,7 +54,7 @@
     @for (listing of filteredListings(); track listing.id) {
       <div class="p2p-row">
         <span class="p2p-cell p2p-cell--breed">
-          <div class="p2p-avatar"></div>
+          <img class="p2p-avatar" [src]="breedImage(listing.petBreed)" [alt]="listing.petBreed" />
           <div>
             <b>{{ listing.petBreed }}</b>
             @if (hasActiveBid(listing)) {

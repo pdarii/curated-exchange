@@ -37,6 +37,7 @@
     border-radius: 50%;
     background: #e8e8e8;
     flex-shrink: 0;
+    object-fit: cover;
   }
 
   &__info { display: flex; flex-direction: column; }

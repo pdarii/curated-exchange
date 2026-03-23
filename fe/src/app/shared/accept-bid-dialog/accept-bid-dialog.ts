@@ -3,6 +3,7 @@ import { CurrencyPipe } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { getPetImage } from '../../shared/utils/pet-images';
 
 export interface BidOffer {
   bidderName: string;
@@ -68,6 +69,10 @@ export class AcceptBidDialog {
     this.returnPct = data.intrinsicValue > 0
       ? +((this.marketPremium / data.intrinsicValue) * 100).toFixed(1)
       : 0;
+  }
+
+  get petImage(): string {
+    return getPetImage(this.petBreed);
   }
 
   toggleOffers(): void {

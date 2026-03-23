@@ -60,14 +60,13 @@
     <span class="assets-cell assets-cell--health">Health</span>
     <span class="assets-cell assets-cell--value">Intrinsic Value</span>
     <span class="assets-cell assets-cell--status">Status</span>
-    <span class="assets-cell assets-cell--actions">Actions</span>
   </div>
 
   @for (pet of filteredPets(); track pet.id) {
     <div class="assets-row" [routerLink]="['/assets', pet.id]" style="cursor: pointer">
       <span class="assets-cell assets-cell--name">
-        <span class="assets-cell__icon">{{ typeIcon(pet.type) }}</span>
-        <b>{{ pet.name }}</b>
+        <img class="assets-cell__photo" [src]="petImage(pet.breedName)" [alt]="pet.breedName" />
+        <b>{{ petName(pet.id, pet.breedName) }}</b>
       </span>
       <span class="assets-cell assets-cell--breed">{{ pet.breedName }}</span>
       <span class="assets-cell assets-cell--type">{{ pet.type }}</span>
@@ -92,21 +91,6 @@
             <span class="status-badge status-badge--inventory">In Inventory</span>
           }
         }
-      </span>
-      <span class="assets-cell assets-cell--actions">
-        <button mat-icon-button [matMenuTriggerFor]="petMenu">
-          <mat-icon>more_vert</mat-icon>
-        </button>
-        <mat-menu #petMenu="matMenu">
-          <button mat-menu-item>
-            <mat-icon>visibility</mat-icon>
-            <span>View Details</span>
-          </button>
-          <button mat-menu-item (click)="openCreateListing(pet)" [disabled]="petStatus(pet.id) !== 'inventory'">
-            <mat-icon>sell</mat-icon>
-            <span>List for Sale</span>
-          </button>
-        </mat-menu>
       </span>
     </div>
   } @empty {

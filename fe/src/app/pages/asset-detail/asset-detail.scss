@@ -44,9 +44,7 @@
     height: 64px;
     border-radius: 0.625rem;
     background: #e8e8e8;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    object-fit: cover;
     overflow: hidden;
 
     mat-icon {

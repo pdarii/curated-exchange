@@ -3,7 +3,7 @@
 <mat-dialog-content class="bid-content">
   <!-- Current Item -->
   <div class="bid-item">
-    <div class="bid-item__avatar"></div>
+    <img class="bid-item__avatar" [src]="petImage" [alt]="petBreed" />
     <div class="bid-item__info">
       <span class="bid-item__label">Current Item</span>
       <span class="bid-item__name">{{ petBreed }}</span>

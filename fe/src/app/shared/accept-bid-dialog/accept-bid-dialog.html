@@ -11,7 +11,7 @@
 <mat-dialog-content class="abd-content">
   <!-- Pet info -->
   <div class="abd-pet">
-    <div class="abd-pet__avatar"></div>
+    <img class="abd-pet__avatar" [src]="petImage" [alt]="petBreed" />
     <div class="abd-pet__info">
       <span class="abd-pet__name">{{ petName }} <mat-icon class="abd-pet__verified">verified</mat-icon></span>
       <span class="abd-pet__breed">{{ petBreed }}</span>

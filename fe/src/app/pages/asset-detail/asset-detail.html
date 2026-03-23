@@ -9,9 +9,7 @@
   <!-- Pet identity header -->
   <div class="detail-header">
     <div class="detail-header__left">
-      <div class="detail-header__avatar">
-        <mat-icon>pets</mat-icon>
-      </div>
+      <img class="detail-header__avatar" [src]="petImageUrl()" [alt]="breedLabel()" />
       <div>
         <h1 class="detail-header__name">{{ petName() }} 🐾</h1>
         <p class="detail-header__breed">{{ breedLabel() }}</p>

@@ -11,6 +11,8 @@ import { AuthService } from '../../services/auth.service';
 import { SocketService } from '../../services/socket.service';
 import { Pet } from '../../models/domain';
 import { ListForSaleDialog, ListForSaleDialogData } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
+import { getPetImage } from '../../shared/utils/pet-images';
+import { getPetName } from '../../shared/utils/pet-names';
 
 @Component({
   selector: 'app-asset-detail',
@@ -30,8 +32,12 @@ export class AssetDetail implements OnInit {
   isListed = signal(false);
   unlistedPets = signal<Pet[]>([]);
 
-  petName = computed(() => this.pet()?.name ?? 'Pet');
+  petName = computed(() => {
+    const p = this.pet();
+    return p ? getPetName(p.id, p.breedName) : 'Pet';
+  });
   breedLabel = computed(() => this.pet()?.breedName ?? '');
+  petImageUrl = computed(() => getPetImage(this.pet()?.breedName ?? ''));
 
   healthFactor = computed(() => {
     const p = this.pet();

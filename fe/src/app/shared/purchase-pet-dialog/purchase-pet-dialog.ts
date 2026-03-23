@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Breed } from '../../models/domain';
+import { getPetImage } from '../../shared/utils/pet-images';
 
 export interface PurchasePetDialogData {
   breed: Breed;
@@ -37,6 +38,10 @@ export class PurchasePetDialog {
     this.breed = data.breed;
     this.supply = data.supply;
     this.availableCash = data.availableCash;
+  }
+
+  get breedImage(): string {
+    return getPetImage(this.breed.name);
   }
 
   get totalCost(): number {
