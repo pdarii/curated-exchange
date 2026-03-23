@@ -124,22 +124,31 @@ export class Shell implements OnInit {
   onNotifClick(n: DomainNotification): void {
     if (n.type !== 'bid_received') return;
 
-    // Find the listing for this pet
-    const listing = this.listings().find((l) => l.pet.breedName === n.petBreedName);
-    if (!listing || !listing.highestBid) return;
+    // Find the listing — match by petBreedName from notification
+    const listing = this.listings().find((l) =>
+      l.pet?.breedName === n.petBreedName || l.highestBid?.petBreedName === n.petBreedName
+    );
+    if (!listing) return;
 
     this.closeFeed();
 
+    // Use pet data if available, fallback to notification data
+    const petBreed = listing.pet?.breedName ?? n.petBreedName ?? 'Pet';
+    const petHealth = listing.pet?.health ?? 100;
+    const petAge = listing.pet?.age ?? 0;
+    const intrinsicValue = listing.pet?.intrinsicValue ?? n.amount ?? 0;
+    const petName = listing.pet ? getPetName(listing.petId, listing.pet.breedName, listing.pet.name) : petBreed;
+
     this.dialog.open(AcceptBidDialog, {
       data: {
-        petName: getPetName(listing.petId, listing.pet.breedName, listing.pet.name),
-        petBreed: listing.pet.breedName,
-        petHealth: listing.pet.health,
-        petAge: listing.pet.age,
-        intrinsicValue: listing.pet.intrinsicValue,
+        petName,
+        petBreed,
+        petHealth,
+        petAge,
+        intrinsicValue,
         highestBid: {
-          bidderName: n.counterpartyName ?? listing.highestBid.bidderName,
-          amount: n.amount ?? listing.highestBid.amount,
+          bidderName: n.counterpartyName ?? listing.highestBid?.bidderName ?? 'Unknown',
+          amount: n.amount ?? listing.highestBid?.amount ?? 0,
           timeAgo: this.timeAgo(n.createdAt),
         },
         otherOffers: [

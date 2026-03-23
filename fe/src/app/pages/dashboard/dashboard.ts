@@ -41,6 +41,7 @@ export class Dashboard implements OnInit {
   pets = signal<Pet[]>([]);
   listings = signal<Listing[]>([]);
   bids = signal<Bid[]>([]);
+  myActiveBids = signal<Bid[]>([]);
   notifications = signal<DomainNotification[]>([]);
   marketEvents = signal<HistoryEvent[]>([]);
 
@@ -103,6 +104,9 @@ export class Dashboard implements OnInit {
 
     this.api.getMarketHistory().subscribe((h) => this.marketEvents.set(h));
 
+    // Load active bids from all market listings (BE doesn't store bids separately)
+    this.loadMyActiveBids();
+
     // Real-time pet stats
     this.socket
       .onPetStatsUpdate()
@@ -125,6 +129,15 @@ export class Dashboard implements OnInit {
       .subscribe((e: NotificationEvent) => {
         this.auth.addNotification(e.notification);
       });
+  }
+
+  private loadMyActiveBids(): void {
+    this.api.getListings().subscribe((listings) => {
+      const myBids: Bid[] = listings
+        .filter((l) => l.highestBid?.bidderId === this.traderId)
+        .map((l) => l.highestBid!);
+      this.myActiveBids.set(myBids);
+    });
   }
 
   petImage(breedName: string): string {

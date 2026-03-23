@@ -109,15 +109,13 @@
           </div>
         }
 
-        @for (bid of bids(); track bid.id) {
-          @if (bid.status === 'active') {
-            <div class="ops-row">
-              <span class="ops-cell ops-cell--type"><span class="ops-dot ops-dot--amber"></span> Active Bid</span>
-              <span class="ops-cell ops-cell--asset">{{ bid.petBreedName }} (ID #{{ bid.petId.slice(-4) }})</span>
-              <span class="ops-cell ops-cell--value">{{ bid.amount | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
-              <span class="ops-cell ops-cell--status"><span class="badge badge--outline">Pending Response</span></span>
-            </div>
-          }
+        @for (bid of myActiveBids(); track bid.id) {
+          <div class="ops-row">
+            <span class="ops-cell ops-cell--type"><span class="ops-dot ops-dot--amber"></span> Active Bid</span>
+            <span class="ops-cell ops-cell--asset">{{ bid.petBreedName }} (ID #{{ bid.petId.slice(-4) }})</span>
+            <span class="ops-cell ops-cell--value">{{ bid.amount | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
+            <span class="ops-cell ops-cell--status"><span class="badge badge--outline">Pending Response</span></span>
+          </div>
         }
       </div>
     </section>
