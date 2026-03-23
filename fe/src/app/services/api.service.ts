@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map, of } from 'rxjs';
+import { Observable, map, of, forkJoin } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   Breed,
@@ -76,7 +76,29 @@ export class ApiService {
   // Secondary market — listings
   // ---------------------------------------------------------------------------
   getListings(): Observable<Listing[]> {
-    return this.http.get<Listing[]>(`${this.apiUrl}/market/listings`);
+    return this.http.get<any[]>(`${this.apiUrl}/market/listings`).pipe(
+      map((listings) =>
+        listings.map((l) => ({
+          ...l,
+          // BE doesn't populate pet object — build a minimal one if missing
+          pet: l.pet ?? {
+            id: l.petId,
+            name: '',
+            breedName: l.highestBid?.petBreedName ?? 'Unknown',
+            type: 'Dog' as const,
+            ownerId: l.sellerId,
+            age: 0,
+            health: 100,
+            lifespan: 10,
+            desirability: 5,
+            maintenance: 3,
+            basePrice: l.askingPrice,
+            intrinsicValue: l.askingPrice,
+            expired: false,
+          },
+        } as Listing)),
+      ),
+    );
   }
 
   createListing(petId: string, askingPrice: number): Observable<Listing> {

@@ -24,6 +24,7 @@ interface MarketListing {
   id: string;
   petBreed: string;
   petType: PetType;
+  sellerId: string;
   seller: string;
   askingPrice: number;
   intrinsicValue: number;
@@ -72,8 +73,8 @@ export class Market implements OnInit {
   ];
 
   private allFiltered = computed(() => {
-    const userName = this.auth.user()?.name;
-    let result = this.listings().filter((l) => l.seller !== userName);
+    const userId = this.auth.user()?.id;
+    let result = this.listings().filter((l) => l.sellerId !== userId);
     const type = this.typeFilter();
     if (type) result = result.filter((l) => l.petType === type);
     const field = this.sortField();
@@ -143,6 +144,7 @@ export class Market implements OnInit {
             id: l.id,
             petBreed: l.pet.breedName,
             petType: l.pet.type,
+            sellerId: l.sellerId,
             seller: l.sellerName,
             askingPrice: l.askingPrice,
             intrinsicValue: l.pet.intrinsicValue,
@@ -181,6 +183,7 @@ export class Market implements OnInit {
             id: l.id,
             petBreed: l.pet.breedName,
             petType: l.pet.type,
+            sellerId: l.sellerId,
             seller: l.sellerName,
             askingPrice: l.askingPrice,
             intrinsicValue: l.pet.intrinsicValue,
@@ -235,7 +238,7 @@ export class Market implements OnInit {
   }
 
   isOwnListing(listing: MarketListing): boolean {
-    return listing.seller === this.auth.user()?.name;
+    return listing.sellerId === this.auth.user()?.id;
   }
 
   hasActiveBid(listing: MarketListing): boolean {

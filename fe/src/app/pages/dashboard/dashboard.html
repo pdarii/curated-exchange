@@ -97,7 +97,7 @@
         @for (listing of listings(); track listing.id) {
           <div class="ops-row">
             <span class="ops-cell ops-cell--type"><span class="ops-dot ops-dot--blue"></span> Listing</span>
-            <span class="ops-cell ops-cell--asset">{{ listing.pet?.breedName ?? 'Unknown' }} (ID #{{ listing.petId.slice(-4) }})</span>
+            <span class="ops-cell ops-cell--asset">{{ listing.pet ? listing.pet.breedName : 'Unknown' }} (ID #{{ listing.petId.slice(-4) }})</span>
             <span class="ops-cell ops-cell--value">{{ listing.askingPrice | currency: 'USD' : 'symbol' : '1.2-2' }}</span>
             <span class="ops-cell ops-cell--status">
               @if (listing.highestBid) {
