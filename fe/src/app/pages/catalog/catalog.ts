@@ -12,6 +12,7 @@ import { Breed, PetType } from '../../models/domain';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { PurchasePetDialog, PurchasePetDialogData, PurchasePetDialogResult } from '../../shared/purchase-pet-dialog/purchase-pet-dialog';
+import { getPetImage } from '../../shared/utils/pet-images';
 
 interface CatalogItem {
   breed: Breed;
@@ -152,6 +153,10 @@ export class Catalog implements OnInit {
 
   breedSubtitle(name: string): string {
     return this.BREED_SUBS[name] ?? name;
+  }
+
+  breedImage(name: string): string {
+    return getPetImage(name);
   }
 
   supplyLabel(supply: number): string {

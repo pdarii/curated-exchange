@@ -36,6 +36,7 @@
     <div class="cat-card">
       <!-- Image -->
       <div class="cat-card__img">
+        <img [src]="breedImage(item.breed.name)" [alt]="item.breed.name" />
         <span class="supply-badge" [class]="supplyBadgeClass(item.supply)">
           {{ supplyLabel(item.supply) }}
         </span>

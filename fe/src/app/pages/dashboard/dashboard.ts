@@ -15,6 +15,7 @@ import { Pet, Listing, Bid, Notification as DomainNotification, HistoryEvent } f
 import { PetStatsUpdateEvent, ListingUpdateEvent, ListingRemovedEvent, NotificationEvent } from '../../models/socket-events';
 import { ListForSaleDialog, ListForSaleDialogData } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
 import { AcceptBidDialog, AcceptBidDialogData } from '../../shared/accept-bid-dialog/accept-bid-dialog';
+import { getPetImage } from '../../shared/utils/pet-images';
 
 @Component({
   selector: 'app-dashboard',
@@ -123,6 +124,10 @@ export class Dashboard implements OnInit {
       .subscribe((e: NotificationEvent) => {
         this.auth.addNotification(e.notification);
       });
+  }
+
+  petImage(breedName: string): string {
+    return getPetImage(breedName);
   }
 
   isListed(petId: string): boolean {

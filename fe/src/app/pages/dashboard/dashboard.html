@@ -35,7 +35,7 @@
         @for (pet of pets(); track pet.id) {
           <div class="pet-card" [routerLink]="['/assets', pet.id]" style="cursor: pointer">
             <div class="pet-card__img">
-              <img src="https://placedog.net/400/240?id={{ pet.id }}" [alt]="pet.breedName" />
+              <img [src]="petImage(pet.breedName)" [alt]="pet.breedName" />
               @if (isListed(pet.id)) {
                 <div class="pet-card__badges">
                   <span class="badge badge--primary">Active Listing</span>

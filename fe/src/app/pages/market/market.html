@@ -118,7 +118,7 @@
     @for (item of retailCards(); track item.breed.name) {
       <div class="retail-card">
         <div class="retail-card__top">
-          <div class="retail-card__img"></div>
+          <img class="retail-card__img" [src]="breedImage(item.breed.name)" [alt]="item.breed.name" />
           <div class="retail-card__info">
             <div class="retail-card__name-row">
               <span class="retail-card__name">{{ item.breed.name }}</span>

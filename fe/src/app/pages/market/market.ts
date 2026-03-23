@@ -17,6 +17,7 @@ import { Pet, PetType, Breed } from '../../models/domain';
 import { ListForSaleDialog, ListForSaleDialogData, ListForSaleDialogResult } from '../../shared/list-for-sale-dialog/list-for-sale-dialog';
 import { PlaceBidDialog, PlaceBidDialogData, PlaceBidDialogResult } from '../../shared/place-bid-dialog/place-bid-dialog';
 import { PurchasePetDialog, PurchasePetDialogData, PurchasePetDialogResult } from '../../shared/purchase-pet-dialog/purchase-pet-dialog';
+import { getPetImage } from '../../shared/utils/pet-images';
 import { PetStatsUpdateEvent, ListingUpdateEvent, ListingRemovedEvent } from '../../models/socket-events';
 
 interface MarketListing {
@@ -223,6 +224,10 @@ export class Market implements OnInit {
     if (health > 70) return 'health-bar-mini__fill--green';
     if (health > 40) return 'health-bar-mini__fill--amber';
     return 'health-bar-mini__fill--red';
+  }
+
+  breedImage(name: string): string {
+    return getPetImage(name);
   }
 
   isOwnListing(listing: MarketListing): boolean {
