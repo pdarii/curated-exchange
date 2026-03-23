@@ -31,12 +31,16 @@ steps:
       - '--allow-unauthenticated'
 
   # 4. Build Frontend (Angular)
-  - name: 'node:20-bullseye'
+  - name: 'node:20'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
+        # 1. Remove any existing node_modules to avoid "ghost" files
+        rm -rf node_modules package-lock.json
+        # 2. Re-install from scratch in the Linux environment
         npm install --legacy-peer-deps
+        # 3. Build
         npm run build
     dir: 'fe'
 
