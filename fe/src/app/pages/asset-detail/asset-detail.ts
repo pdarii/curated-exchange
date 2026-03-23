@@ -34,7 +34,7 @@ export class AssetDetail implements OnInit {
 
   petName = computed(() => {
     const p = this.pet();
-    return p ? getPetName(p.id, p.breedName) : 'Pet';
+    return p ? getPetName(p.id, p.breedName, p.name) : 'Pet';
   });
   breedLabel = computed(() => this.pet()?.breedName ?? '');
   petImageUrl = computed(() => getPetImage(this.pet()?.breedName ?? ''));

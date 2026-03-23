@@ -66,7 +66,8 @@ export class Assets implements OnInit {
       result = result.filter(
         (p) =>
           p.breedName.toLowerCase().includes(q) ||
-          p.name.toLowerCase().includes(q),
+          (p.name ?? '').toLowerCase().includes(q) ||
+          getPetName(p.id, '').toLowerCase().includes(q),
       );
     }
     const type = this.typeFilter();
@@ -142,8 +143,8 @@ export class Assets implements OnInit {
       });
   }
 
-  petName(id: string, fallback: string): string {
-    return getPetName(id, fallback);
+  petName(id: string, fallback: string, apiName?: string): string {
+    return getPetName(id, fallback, apiName);
   }
 
   petImage(breedName: string): string {
