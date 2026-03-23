@@ -60,7 +60,7 @@ export class ListForSaleDialog {
   }
 
   petLabel(pet: Pet): string {
-    return `${getPetName(pet.id, pet.breedName)} (${pet.breedName})`;
+    return `${getPetName(pet.id, pet.breedName, pet.name)} (${pet.breedName})`;
   }
 
   cancel(): void {

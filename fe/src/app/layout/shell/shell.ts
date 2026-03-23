@@ -132,7 +132,7 @@ export class Shell implements OnInit {
 
     this.dialog.open(AcceptBidDialog, {
       data: {
-        petName: getPetName(listing.petId, listing.pet.breedName),
+        petName: getPetName(listing.petId, listing.pet.breedName, listing.pet.name),
         petBreed: listing.pet.breedName,
         petHealth: listing.pet.health,
         petAge: listing.pet.age,

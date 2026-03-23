@@ -59,7 +59,7 @@ export class TradeHistory implements OnInit {
         const found = portfolio.pets.find((p) => p.id === petId);
         if (found) {
           this.pet.set(found);
-          this.petName.set(getPetName(found.id, found.breedName));
+          this.petName.set(getPetName(found.id, found.breedName, found.name));
           this.petBreed.set(found.breedName);
           this.loadHistory(petId);
         }
