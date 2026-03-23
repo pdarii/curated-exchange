@@ -186,7 +186,15 @@ export class ApiService {
   // Notifications
   // ---------------------------------------------------------------------------
   getMyNotifications(): Observable<DomainNotification[]> {
-    return this.http.get<DomainNotification[]>(`${this.apiUrl}/traders/me/notifications`);
+    // Try the /traders/me/notifications endpoint first
+    // Note: BE route ordering issue may cause this to hit /traders/:id instead
+    return this.http.get<DomainNotification[]>(`${this.apiUrl}/traders/me/notifications`).pipe(
+      map((result: any) => {
+        // If we got a portfolio object instead of notifications array, return empty
+        if (result && !Array.isArray(result)) return [];
+        return result ?? [];
+      }),
+    );
   }
 
   markNotificationRead(notificationId: string): Observable<void> {

@@ -31,6 +31,8 @@ interface MarketListing {
   health: number;
   age: number;
   petId: string;
+  highestBidBidderId?: string;
+  highestBidAmount?: number;
 }
 
 interface RetailCard {
@@ -94,6 +96,7 @@ export class Market implements OnInit {
   private myPets = signal<Pet[]>([]);
   private myListedPetIds = signal<Set<string>>(new Set());
   private myBidsByListing = signal<Map<string, number>>(new Map());
+  private myHighestBidListingIds = signal<Set<string>>(new Set());
   private myAvailableCash = signal(450);
 
   constructor(
@@ -175,11 +178,31 @@ export class Market implements OnInit {
     this.traderId = user.id;
 
     // Load secondary market listings
+    this.reloadListings();
+
+    // Retail supply
+    this.api.getRetailItems().subscribe((items) => {
+      this.retailCards.set(items.slice(0, 4).map(item => ({
+        breed: item.breed,
+        price: item.breed.basePrice,
+        supply: item.supplyRemaining
+      })));
+    });
+  }
+
+  private reloadListings(): void {
     this.api.getListings().subscribe((listings) => {
-      this.listings.set(
-        listings
-          .filter((l) => l.pet)
-          .map((l) => ({
+      const userId = this.auth.user()?.id;
+      const myBidIds = new Set<string>();
+
+      const mapped = listings
+        .filter((l) => l.pet)
+        .map((l) => {
+          const bidderId = l.highestBid?.bidderId;
+          if (bidderId === userId) {
+            myBidIds.add(l.id);
+          }
+          return {
             id: l.id,
             petBreed: l.pet.breedName,
             petType: l.pet.type,
@@ -190,17 +213,27 @@ export class Market implements OnInit {
             health: l.pet.health,
             age: l.pet.age,
             petId: l.petId,
-          })),
-      );
-    });
+            highestBidBidderId: bidderId,
+            highestBidAmount: l.highestBid?.amount,
+          };
+        });
 
-    // Retail supply
-    this.api.getRetailItems().subscribe((items) => {
-      this.retailCards.set(items.slice(0, 4).map(item => ({
-        breed: item.breed,
-        price: item.breed.basePrice,
-        supply: item.supplyRemaining
-      })));
+      this.listings.set(mapped);
+      this.myHighestBidListingIds.set(myBidIds);
+
+      // Also update myBidsByListing from highestBid data
+      const bidMap = new Map<string, number>();
+      for (const m of mapped) {
+        if (m.highestBidBidderId === userId && m.highestBidAmount) {
+          bidMap.set(m.id, m.highestBidAmount);
+        }
+      }
+      // Merge with existing bids from portfolio
+      const existing = this.myBidsByListing();
+      for (const [k, v] of bidMap) {
+        existing.set(k, v);
+      }
+      this.myBidsByListing.set(new Map(existing));
     });
   }
 
@@ -242,7 +275,10 @@ export class Market implements OnInit {
   }
 
   hasActiveBid(listing: MarketListing): boolean {
-    return this.myBidsByListing().has(listing.id);
+    // Check the bidsByListing map from portfolio
+    if (this.myBidsByListing().has(listing.id)) return true;
+    // Also check if the raw listing's highestBid belongs to us
+    return this.myHighestBidListingIds().has(listing.id);
   }
 
   openCreateListing(): void {
@@ -279,8 +315,16 @@ export class Market implements OnInit {
 
     dialogRef.afterClosed().subscribe((result: PlaceBidDialogResult | undefined) => {
       if (result) {
-        this.api.placeBid(result.listingId, result.amount).subscribe(() => {
-          this.auth.refreshProfile();
+        this.api.placeBid(result.listingId, result.amount).subscribe({
+          next: () => {
+            this.auth.refreshProfile();
+            this.reloadListings();
+          },
+          error: (err) => {
+            const msg = err?.error?.message || err?.message || 'Failed to place bid';
+            console.error('Place bid failed:', msg);
+            alert(msg);
+          },
         });
       }
     });

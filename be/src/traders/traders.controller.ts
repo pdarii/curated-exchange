@@ -52,6 +52,24 @@ export class TradersController {
     return portfolio;
   }
 
+  @Get('me/notifications')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get notifications for current user' })
+  async getMyNotifications(@CurrentUser() userId: string) {
+    const snapshot = await this.firestore.collection('notifications')
+      .where('traderId', '==', userId)
+      .limit(50)
+      .get();
+    const notifications: any[] = [];
+    snapshot.forEach(doc => notifications.push(doc.data()));
+
+    // Sort in memory to avoid Firestore index requirement
+    notifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    return notifications;
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get a specific trader portfolio' })
   async getTraderPortfolio(@Param('id') id: string) {
@@ -113,21 +131,4 @@ export class TradersController {
     return { success: true };
   }
 
-  @Get('me/notifications')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get notifications for current user' })
-  async getMyNotifications(@CurrentUser() userId: string) {
-    const snapshot = await this.firestore.collection('notifications')
-      .where('traderId', '==', userId)
-      .limit(50)
-      .get();
-    const notifications: any[] = [];
-    snapshot.forEach(doc => notifications.push(doc.data()));
-    
-    // Sort in memory to avoid Firestore index requirement
-    notifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    
-    return notifications;
-  }
 }
